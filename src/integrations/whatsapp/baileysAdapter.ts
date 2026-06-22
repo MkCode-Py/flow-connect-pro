@@ -14,7 +14,7 @@ import type { WhatsAppAdapter, OutboundMessage, WAStatus, WAEvent, WAEventHandle
 
 export class BaileysWhatsAppAdapter implements WhatsAppAdapter {
   async connectInstance(_instanceId: string) { throw new Error("TODO: implementar via backend Baileys"); }
-  async generateQrCode(_instanceId: string) { throw new Error("TODO: implementar via backend Baileys"); }
+  async generateQrCode(_instanceId: string): Promise<{ qr: string; expiresAt: Date }> { throw new Error("TODO: implementar via backend Baileys"); }
   async disconnectInstance(_instanceId: string) { throw new Error("TODO: implementar via backend Baileys"); }
   async deleteSession(_instanceId: string) { throw new Error("TODO: implementar via backend Baileys"); }
   async sendMessage(_instanceId: string, _to: string, _msg: OutboundMessage): Promise<{ id: string }> { throw new Error("TODO"); }
