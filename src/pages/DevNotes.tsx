@@ -12,21 +12,22 @@ export default function DevNotes() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
-        <nav className="space-y-1 sticky top-16 self-start">
-          {[
-            ["#visao", "Visão geral", BookOpen],
-            ["#arquitetura", "Arquitetura", Server],
-            ["#schema", "Banco de dados", Database],
-            ["#engine", "Engine de automação", Workflow],
-            ["#adapter", "WhatsAppAdapter", Plug],
-            ["#integracao", "Plugar Baileys", Code2],
-            ["#seguranca", "Segurança", Shield],
-            ["#setup", "Setup local", Zap],
-          ].map(([href, label, Icon]) => (
-            <a key={href as string} href={href as string} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-surface-2 hover:text-foreground transition-colors">
-              {/* @ts-expect-error icon component */}
+        <nav className="space-y-1 lg:sticky lg:top-16 self-start">
+          {(
+            [
+              ["#visao", "Visão geral", BookOpen],
+              ["#arquitetura", "Arquitetura", Server],
+              ["#schema", "Banco de dados", Database],
+              ["#engine", "Engine de automação", Workflow],
+              ["#adapter", "WhatsAppAdapter", Plug],
+              ["#integracao", "Plugar Baileys", Code2],
+              ["#seguranca", "Segurança", Shield],
+              ["#setup", "Setup local", Zap],
+            ] as const
+          ).map(([href, label, Icon]) => (
+            <a key={href} href={href} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-surface-2 hover:text-foreground transition-colors">
               <Icon className="h-3.5 w-3.5" />
-              {label as string}
+              {label}
             </a>
           ))}
         </nav>
