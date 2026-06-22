@@ -26,7 +26,6 @@ const DEFAULT_TAGS = [
 export async function ensureSeed(userId: string) {
   const tasks: Promise<unknown>[] = [];
 
-  // fluxos padrão
   const { data: existing } = await supabase
     .from("flows")
     .select("kind")
@@ -36,33 +35,29 @@ export async function ensureSeed(userId: string) {
   const missing = DEFAULT_FLOWS.filter((f) => !have.has(f.kind));
   if (missing.length) {
     tasks.push(
-      supabase.from("flows").insert(
-        missing.map((m) => ({ owner_id: userId, name: m.name, kind: m.kind }))
+      Promise.resolve(
+        supabase.from("flows").insert(missing.map((m) => ({ owner_id: userId, name: m.name, kind: m.kind })))
       )
     );
   }
 
-  // quick replies
   const { count: qrCount } = await supabase
-    .from("quick_replies")
-    .select("*", { count: "exact", head: true })
-    .eq("owner_id", userId);
+    .from("quick_replies").select("*", { count: "exact", head: true }).eq("owner_id", userId);
   if (!qrCount) {
     tasks.push(
-      supabase.from("quick_replies").insert(
-        DEFAULT_QUICK_REPLIES.map((q) => ({ owner_id: userId, ...q }))
+      Promise.resolve(
+        supabase.from("quick_replies").insert(DEFAULT_QUICK_REPLIES.map((q) => ({ owner_id: userId, ...q })))
       )
     );
   }
 
-  // tags
   const { count: tagCount } = await supabase
-    .from("tags")
-    .select("*", { count: "exact", head: true })
-    .eq("owner_id", userId);
+    .from("tags").select("*", { count: "exact", head: true }).eq("owner_id", userId);
   if (!tagCount) {
     tasks.push(
-      supabase.from("tags").insert(DEFAULT_TAGS.map((t) => ({ owner_id: userId, ...t })))
+      Promise.resolve(
+        supabase.from("tags").insert(DEFAULT_TAGS.map((t) => ({ owner_id: userId, ...t })))
+      )
     );
   }
 
