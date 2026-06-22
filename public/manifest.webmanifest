@@ -1,0 +1,12 @@
+{
+  "name": "MK Flow WhatsApp",
+  "short_name": "MK Flow",
+  "description": "Automação de conversas WhatsApp com editor visual de fluxos.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0D12",
+  "theme_color": "#0A0D12",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

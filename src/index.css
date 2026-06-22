@@ -1,105 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import 'reactflow/dist/style.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* MK Flow WhatsApp — Design System
+   Todas as cores em HSL. Nenhum componente pode usar cores hardcoded. */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* base dark premium */
+    --background: 220 24% 6%;
+    --foreground: 210 20% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --surface-1: 220 22% 9%;
+    --surface-2: 220 20% 12%;
+    --surface-3: 220 18% 16%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --card: 220 22% 9%;
+    --card-foreground: 210 20% 96%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --popover: 220 22% 10%;
+    --popover-foreground: 210 20% 96%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --primary: 142 71% 45%;            /* verde WhatsApp */
+    --primary-foreground: 220 24% 6%;
+    --primary-glow: 142 71% 55%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 217 91% 60%;              /* azul premium */
+    --accent-foreground: 220 24% 6%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 18% 16%;
+    --secondary-foreground: 210 20% 96%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --muted: 220 18% 14%;
+    --muted-foreground: 215 14% 60%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 210 20% 98%;
 
-    --radius: 0.5rem;
+    --warning: 38 92% 55%;
+    --warning-foreground: 220 24% 6%;
 
-    --sidebar-background: 0 0% 98%;
+    --success: 142 71% 45%;
+    --success-foreground: 220 24% 6%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --border: 220 16% 18%;
+    --border-strong: 220 16% 24%;
+    --input: 220 18% 14%;
+    --ring: 142 71% 45%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    --radius: 0.625rem;
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Paleta dos blocos do editor */
+    --node-start: 142 71% 45%;          /* verde esmeralda */
+    --node-start-fg: 220 24% 6%;
+    --node-content: 350 75% 55%;        /* vinho/coral */
+    --node-content-fg: 0 0% 100%;
+    --node-action: 38 92% 55%;          /* âmbar */
+    --node-action-fg: 220 24% 6%;
+    --node-condition: 217 91% 60%;      /* azul */
+    --node-condition-fg: 220 24% 6%;
+    --node-menu: 270 75% 65%;           /* violeta */
+    --node-menu-fg: 220 24% 6%;
+    --node-question: 188 86% 53%;       /* ciano */
+    --node-question-fg: 220 24% 6%;
+    --node-flowlink: 158 64% 38%;       /* verde escuro */
+    --node-flowlink-fg: 0 0% 100%;
+    --node-random: 330 75% 60%;         /* rosa */
+    --node-random-fg: 220 24% 6%;
+    --node-webhook: 220 12% 50%;        /* cinza azulado */
+    --node-webhook-fg: 220 24% 6%;
+    --node-end: 0 72% 55%;              /* vermelho */
+    --node-end-fg: 0 0% 100%;
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    /* Sidebar */
+    --sidebar-background: 220 26% 5%;
+    --sidebar-foreground: 215 14% 70%;
+    --sidebar-primary: 142 71% 45%;
+    --sidebar-primary-foreground: 220 24% 6%;
+    --sidebar-accent: 220 20% 12%;
+    --sidebar-accent-foreground: 210 20% 96%;
+    --sidebar-border: 220 16% 12%;
+    --sidebar-ring: 142 71% 45%;
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sombras e gradientes */
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.25), 0 8px 32px -8px hsl(var(--primary) / 0.35);
+    --shadow-card: 0 1px 0 0 hsl(0 0% 100% / 0.04) inset, 0 8px 24px -12px hsl(220 50% 2% / 0.6);
+    --gradient-brand: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(188 86% 53%) 100%);
+    --gradient-surface: linear-gradient(180deg, hsl(var(--surface-1)) 0%, hsl(var(--surface-2)) 100%);
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
+  * { @apply border-border; }
+  html, body, #root { height: 100%; }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    letter-spacing: -0.01em;
   }
 }
+
+@layer components {
+  .surface-1 { background-color: hsl(var(--surface-1)); }
+  .surface-2 { background-color: hsl(var(--surface-2)); }
+  .surface-3 { background-color: hsl(var(--surface-3)); }
+
+  .glass {
+    background: linear-gradient(180deg, hsl(var(--surface-1) / 0.8), hsl(var(--surface-2) / 0.6));
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border));
+  }
+
+  .text-gradient-brand {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .dot-grid {
+    background-image: radial-gradient(hsl(var(--border-strong)) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+}
+
+/* React Flow overrides para o tema dark */
+.react-flow__background { background-color: hsl(var(--background)); }
+.react-flow__node { font-family: 'Inter', sans-serif; }
+.react-flow__edge-path { stroke: hsl(var(--border-strong)); stroke-width: 2; }
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:focus .react-flow__edge-path { stroke: hsl(var(--primary)); }
+.react-flow__handle {
+  width: 10px; height: 10px;
+  background: hsl(var(--surface-3));
+  border: 2px solid hsl(var(--border-strong));
+}
+.react-flow__handle:hover { background: hsl(var(--primary)); border-color: hsl(var(--primary)); }
+.react-flow__controls { background: hsl(var(--surface-2)); border: 1px solid hsl(var(--border)); border-radius: 8px; overflow: hidden; }
+.react-flow__controls-button { background: transparent; border-bottom: 1px solid hsl(var(--border)); color: hsl(var(--foreground)); fill: hsl(var(--foreground)); }
+.react-flow__controls-button:hover { background: hsl(var(--surface-3)); }
+.react-flow__minimap { background: hsl(var(--surface-2)); border: 1px solid hsl(var(--border)); border-radius: 8px; }
+.react-flow__attribution { background: transparent; color: hsl(var(--muted-foreground)); font-size: 10px; }
