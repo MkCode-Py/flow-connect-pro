@@ -102,8 +102,8 @@ export class FlowEngine {
 
   async resumeWithMenuChoice(choice: string): Promise<EngineState> {
     if (this.state.status !== "awaiting_menu") return this.state;
-    const node = this.graph.nodes.find((n) => n.id === this.state.nodeId);
-    if (!node) return this.state;
+    const stateNodeId = this.state.nodeId;
+    const node = this.graph.nodes.find((n) => n.id === stateNodeId);
     const options: Array<{ id: string; label: string }> = node.data?.options ?? [];
     const trimmed = choice.trim();
     const byIndex = options[parseInt(trimmed, 10) - 1];
