@@ -1,0 +1,720 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
+  public: {
+    Tables: {
+      automation_logs: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          event: string
+          flow_id: string | null
+          id: string
+          node_id: string | null
+          owner_id: string
+          payload: Json
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          event: string
+          flow_id?: string | null
+          id?: string
+          node_id?: string | null
+          owner_id: string
+          payload?: Json
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          event?: string
+          flow_id?: string | null
+          id?: string
+          node_id?: string | null
+          owner_id?: string
+          payload?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_logs_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_logs_flow_id_fkey"
+            columns: ["flow_id"]
+            isOneToOne: false
+            referencedRelation: "flows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_tags: {
+        Row: {
+          contact_id: string
+          owner_id: string
+          tag_id: string
+        }
+        Insert: {
+          contact_id: string
+          owner_id: string
+          tag_id: string
+        }
+        Update: {
+          contact_id?: string
+          owner_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_tags_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contacts: {
+        Row: {
+          automation_paused: boolean
+          created_at: string
+          custom_fields: Json
+          email: string | null
+          id: string
+          name: string
+          owner_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          automation_paused?: boolean
+          created_at?: string
+          custom_fields?: Json
+          email?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          automation_paused?: boolean
+          created_at?: string
+          custom_fields?: Json
+          email?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          automation_paused: boolean
+          contact_id: string
+          created_at: string
+          id: string
+          last_message_at: string | null
+          owner_id: string
+          status: Database["public"]["Enums"]["conversation_status"]
+          updated_at: string
+        }
+        Insert: {
+          automation_paused?: boolean
+          contact_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          owner_id: string
+          status?: Database["public"]["Enums"]["conversation_status"]
+          updated_at?: string
+        }
+        Update: {
+          automation_paused?: boolean
+          contact_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          owner_id?: string
+          status?: Database["public"]["Enums"]["conversation_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_fields: {
+        Row: {
+          created_at: string
+          field_type: string
+          id: string
+          key: string
+          label: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          field_type?: string
+          id?: string
+          key: string
+          label: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          field_type?: string
+          id?: string
+          key?: string
+          label?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      flow_folders: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      flows: {
+        Row: {
+          connections: number
+          created_at: string
+          ctr: number
+          executions: number
+          folder_id: string | null
+          graph: Json
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["flow_kind"]
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          connections?: number
+          created_at?: string
+          ctr?: number
+          executions?: number
+          folder_id?: string | null
+          graph?: Json
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["flow_kind"]
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          connections?: number
+          created_at?: string
+          ctr?: number
+          executions?: number
+          folder_id?: string | null
+          graph?: Json
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["flow_kind"]
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flows_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "flow_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      keywords: {
+        Row: {
+          created_at: string
+          executions: number
+          flow_id: string | null
+          id: string
+          is_active: boolean
+          match_rule: Database["public"]["Enums"]["keyword_match_rule"]
+          name: string
+          owner_id: string
+          terms: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          executions?: number
+          flow_id?: string | null
+          id?: string
+          is_active?: boolean
+          match_rule?: Database["public"]["Enums"]["keyword_match_rule"]
+          name: string
+          owner_id: string
+          terms?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          executions?: number
+          flow_id?: string | null
+          id?: string
+          is_active?: boolean
+          match_rule?: Database["public"]["Enums"]["keyword_match_rule"]
+          name?: string
+          owner_id?: string
+          terms?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keywords_flow_id_fkey"
+            columns: ["flow_id"]
+            isOneToOne: false
+            referencedRelation: "flows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string | null
+          conversation_id: string
+          created_at: string
+          direction: Database["public"]["Enums"]["message_direction"]
+          id: string
+          media_url: string | null
+          owner_id: string
+          sent_by: Database["public"]["Enums"]["message_sent_by"]
+        }
+        Insert: {
+          body?: string | null
+          conversation_id: string
+          created_at?: string
+          direction: Database["public"]["Enums"]["message_direction"]
+          id?: string
+          media_url?: string | null
+          owner_id: string
+          sent_by: Database["public"]["Enums"]["message_sent_by"]
+        }
+        Update: {
+          body?: string | null
+          conversation_id?: string
+          created_at?: string
+          direction?: Database["public"]["Enums"]["message_direction"]
+          id?: string
+          media_url?: string | null
+          owner_id?: string
+          sent_by?: Database["public"]["Enums"]["message_sent_by"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quick_replies: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          id: string
+          owner_id: string
+          shortcut: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          owner_id: string
+          shortcut: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          owner_id?: string
+          shortcut?: string
+        }
+        Relationships: []
+      }
+      sequences: {
+        Row: {
+          created_at: string
+          executions: number
+          flow_id: string | null
+          id: string
+          interval_minutes: number
+          is_active: boolean
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          executions?: number
+          flow_id?: string | null
+          id?: string
+          interval_minutes?: number
+          is_active?: boolean
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          executions?: number
+          flow_id?: string | null
+          id?: string
+          interval_minutes?: number
+          is_active?: boolean
+          name?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequences_flow_id_fkey"
+            columns: ["flow_id"]
+            isOneToOne: false
+            referencedRelation: "flows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      webhooks: {
+        Row: {
+          created_at: string
+          event: string
+          headers: Json
+          id: string
+          is_active: boolean
+          method: string
+          name: string
+          owner_id: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          event?: string
+          headers?: Json
+          id?: string
+          is_active?: boolean
+          method?: string
+          name: string
+          owner_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          headers?: Json
+          id?: string
+          is_active?: boolean
+          method?: string
+          name?: string
+          owner_id?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      whatsapp_instances: {
+        Row: {
+          created_at: string
+          id: string
+          last_qr: string | null
+          last_seen_at: string | null
+          name: string
+          owner_id: string
+          status: Database["public"]["Enums"]["wa_instance_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_qr?: string | null
+          last_seen_at?: string | null
+          name: string
+          owner_id: string
+          status?: Database["public"]["Enums"]["wa_instance_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_qr?: string | null
+          last_seen_at?: string | null
+          name?: string
+          owner_id?: string
+          status?: Database["public"]["Enums"]["wa_instance_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      conversation_status: "open" | "pending" | "resolved"
+      flow_kind:
+        | "custom"
+        | "welcome"
+        | "default_reply"
+        | "media_default"
+        | "post_service"
+      keyword_match_rule: "contains" | "starts_with" | "exact"
+      message_direction: "in" | "out"
+      message_sent_by: "bot" | "human" | "contact"
+      wa_instance_status:
+        | "disconnected"
+        | "qr"
+        | "connecting"
+        | "connected"
+        | "error"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      conversation_status: ["open", "pending", "resolved"],
+      flow_kind: [
+        "custom",
+        "welcome",
+        "default_reply",
+        "media_default",
+        "post_service",
+      ],
+      keyword_match_rule: ["contains", "starts_with", "exact"],
+      message_direction: ["in", "out"],
+      message_sent_by: ["bot", "human", "contact"],
+      wa_instance_status: [
+        "disconnected",
+        "qr",
+        "connecting",
+        "connected",
+        "error",
+      ],
+    },
+  },
+} as const
