@@ -93,7 +93,7 @@ export function useUpdateFlow() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...patch }: { id: string; name?: string; folder_id?: string | null; is_active?: boolean; graph?: unknown }) => {
-      const { error } = await supabase.from("flows").update(patch).eq("id", id);
+      const { error } = await supabase.from("flows").update(patch as never).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["flows"] }),
