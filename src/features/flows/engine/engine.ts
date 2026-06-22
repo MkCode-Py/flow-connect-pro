@@ -121,13 +121,14 @@ export class FlowEngine {
 
   async resumeWithAnswer(answer: string): Promise<EngineState> {
     if (this.state.status !== "awaiting_question") return this.state;
-    const node = this.graph.nodes.find((n) => n.id === this.state.nodeId);
+    const { nodeId, saveAs } = this.state;
+    const node = this.graph.nodes.find((n) => n.id === nodeId);
     if (!node) return this.state;
     this.lastUserMessage = answer;
-    if (this.state.saveAs) {
-      if (this.state.saveAs === "first_name") this.contact.first_name = answer;
-      else if (this.state.saveAs === "name") this.contact.name = answer;
-      else this.contact.custom[this.state.saveAs] = answer;
+    if (saveAs) {
+      if (saveAs === "first_name") this.contact.first_name = answer;
+      else if (saveAs === "name") this.contact.name = answer;
+      else this.contact.custom[saveAs] = answer;
     }
     const valid = answer.trim().length > 0;
     const edge = nextEdge(this.graph.edges, node.id, valid ? "valid" : "invalid");
