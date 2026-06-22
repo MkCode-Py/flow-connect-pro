@@ -36,7 +36,7 @@ export function FlowSimulator({ nodes, edges }: { nodes: Node[]; edges: Edge[] }
     const engine = new FlowEngine({ nodes, edges }, contact);
     engine.onFollowFlow = async (id: string) => {
       const { data } = await supabase.from("flows").select("graph").eq("id", id).single();
-      const g = data?.graph as { nodes: Node[]; edges: Edge[] } | undefined;
+      const g = data?.graph as unknown as { nodes: Node[]; edges: Edge[] } | undefined;
       return g ? { nodes: g.nodes, edges: g.edges } : null;
     };
     engineRef.current = engine;
