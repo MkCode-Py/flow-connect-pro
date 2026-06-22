@@ -3,23 +3,64 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import { AuthProvider } from "@/lib/auth";
+import { RequireAuth, RedirectIfAuth } from "@/lib/guards";
+import { AppShell } from "@/components/layout/AppShell";
+import Login from "@/pages/auth/Login";
+import Signup from "@/pages/auth/Signup";
+import ResetPassword from "@/pages/auth/ResetPassword";
+import Dashboard from "@/pages/Dashboard";
+import FlowsList from "@/pages/flows/FlowsList";
+import FlowEditor from "@/pages/flows/FlowEditor";
+import Keywords from "@/pages/automation/Keywords";
+import Sequences from "@/pages/automation/Sequences";
+import Webhooks from "@/pages/automation/Webhooks";
+import Inbox from "@/pages/inbox/Inbox";
+import Contacts from "@/pages/Contacts";
+import Tags from "@/pages/Tags";
+import QuickReplies from "@/pages/QuickReplies";
+import Connections from "@/pages/Connections";
+import Settings from "@/pages/Settings";
+import DevNotes from "@/pages/DevNotes";
+import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+    <TooltipProvider delayDuration={150}>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<RedirectIfAuth><Login /></RedirectIfAuth>} />
+            <Route path="/signup" element={<RedirectIfAuth><Signup /></RedirectIfAuth>} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+
+            <Route element={<RequireAuth><AppShell /></RequireAuth>}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/flows" element={<FlowsList />} />
+              <Route path="/flows/:id" element={<FlowEditor />} />
+              <Route path="/automation/keywords" element={<Keywords />} />
+              <Route path="/automation/sequences" element={<Sequences />} />
+              <Route path="/automation/webhooks" element={<Webhooks />} />
+              <Route path="/inbox" element={<Inbox />} />
+              <Route path="/inbox/:conversationId" element={<Inbox />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/tags" element={<Tags />} />
+              <Route path="/quick-replies" element={<QuickReplies />} />
+              <Route path="/connections" element={<Connections />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/dev-notes" element={<DevNotes />} />
+            </Route>
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
