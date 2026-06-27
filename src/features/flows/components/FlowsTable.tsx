@@ -95,8 +95,8 @@ export function FlowsTable(props: FlowTableProps) {
   );
 }
 
-function SortableHead({ label, sortKey, key: _k, dir, onSort, ...rest }: { label: string; sortKey: SortKey; key?: SortKey; dir: SortDir; onSort: (k: SortKey) => void } & { key: SortKey }) {
-  const active = rest.key === sortKey;
+function SortableHead({ label, sortKey, currentKey, dir, onSort }: { label: string; sortKey: SortKey; currentKey: SortKey; dir: SortDir; onSort: (k: SortKey) => void }) {
+  const active = currentKey === sortKey;
   return (
     <TableHead>
       <button type="button" onClick={() => onSort(sortKey)} className={`inline-flex items-center gap-1 hover:text-foreground transition-colors ${active ? "text-foreground" : ""}`}>
