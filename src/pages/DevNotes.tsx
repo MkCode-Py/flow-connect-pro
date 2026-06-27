@@ -67,24 +67,50 @@ export default function DevNotes() {
             <p className="text-sm"><strong>flows.graph</strong> (jsonb) guarda <code>{`{ nodes, edges, viewport }`}</code> do React Flow. A engine consome esse mesmo formato.</p>
           </Section>
 
-          <Section id="engine" title="Engine de automação">
-            <p>Implementada em <code>src/features/flows/engine/engine.ts</code> como classe pura sem dependência de UI. Reutilize-a no backend para processar mensagens recebidas:</p>
-            <Pre>{`import { FlowEngine } from "./engine";
+          <Section id="engine" title="Engine de automação (Etapa 5)">
+            <p>
+              Implementada em <code>src/features/flows/engine/</code> como TypeScript puro, sem dependência de React.
+              A mesma classe será reutilizada pelo backend Node quando o WhatsApp real estiver conectado.
+            </p>
+            <ul className="list-disc pl-5 text-sm space-y-1">
+              <li><code>flowEngine.ts</code> — classe <code>FlowEngine</code>, orquestra execução nó a nó.</li>
+              <li><code>variableResolver.ts</code> — resolve <code>{`{{primeiro_nome}}`}</code>, <code>{`{{campo.x}}`}</code>, <code>{`{{resposta.x}}`}</code>.</li>
+              <li><code>menuMatcher.ts</code> — normalização (acentos/case/pontuação) + shortcut/título/acceptedValues.</li>
+              <li><code>conditionEvaluator.ts</code> — avalia regras com modo <code>all</code>/<code>any</code>.</li>
+              <li><code>actionExecutor.ts</code> — muta contato (tags, custom fields, status, pausar, transferir).</li>
+              <li><code>graphTraversal.ts</code> — <code>getNextNode</code> respeitando <code>sourceHandle</code> dinâmico.</li>
+              <li><code>simulationState.ts</code> + <code>engineLogger.ts</code> — estado e logs estruturados.</li>
+            </ul>
+            <p className="text-sm">
+              No simulador (editor), o painel "Testar" instancia <code>new FlowEngine(graph, contato)</code>, escuta
+              cada <code>tick</code> retornado por <code>start()</code> / <code>sendUserMessage()</code> /
+              <code>simulateTimeout()</code> e renderiza outputs no chat com typing/delays.
+              <strong> Nada de envio real é feito aqui.</strong>
+            </p>
+            <Pre>{`// Uso no backend real (futuro):
+import { FlowEngine } from "@/features/flows/engine";
 
-async function processIncoming(msg) {
-  const { graph } = await db.flows.findActiveByKeyword(msg.body);
-  const engine = new FlowEngine(graph, contactFromDb(msg.from));
-  engine.onFollowFlow = (id) => db.flows.getGraph(id);
-  const state = await engine.run();
-  for (const ev of engine.events) {
-    if (ev.type === "send") await whatsapp.sendMessage(instanceId, msg.from, { type: "text", body: ev.text });
-    if (ev.type === "human") await db.conversations.markHuman(conversationId);
-    if (ev.type === "action") await applyAction(ev, conversationId);
-    await db.automation_logs.insert({ conversation_id, flow_id, node_id: ev.nodeId, event: ev.type, payload: ev });
+async function onWhatsAppMessage(msg, contact, activeFlow) {
+  const engine = new FlowEngine(activeFlow.graph, contact, {
+    resolveFlow: (id) => db.flows.getGraph(id),
+  });
+  engine.setTagNames(tagsById);
+
+  // primeira vez: start. Próximas: sendUserMessage(msg.body)
+  const tick = state.waitingNodeId
+    ? await engine.sendUserMessage(msg.body)
+    : await engine.start();
+
+  for (const out of tick.outputs) {
+    if (out.kind === "text")  await whatsapp.send(contact.phone, out.body);
+    if (out.kind === "menu")  await whatsapp.send(contact.phone, formatMenu(out));
+    if (out.kind === "media_mock") await whatsapp.sendMedia(...);
   }
-  // se state.status === "awaiting_*" guardar o nodeId para retomar quando o usuário responder.
+  for (const log of tick.logs) await db.automation_logs.insert(log);
+  await db.conversations.update({ status: tick.status, contact: tick.contact });
 }`}</Pre>
           </Section>
+
 
           <Section id="adapter" title="WhatsAppAdapter">
             <p>Contrato em <code>src/integrations/whatsapp/adapter.ts</code>. A UI nunca importa Baileys/whatsapp-web.js diretamente — apenas o adapter.</p>
