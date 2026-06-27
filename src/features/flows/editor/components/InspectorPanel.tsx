@@ -74,17 +74,19 @@ function InspectorContent({
   const Icon = meta.icon;
   const isStart = kind === "start";
 
-  // --- estado de rascunho ---
+  // --- estado de rascunho (reset síncrono ao trocar de nó) ---
   const initial = useMemo(() => mergeNodeData(kind, node.data), [node.id, kind]);
   const [draft, setDraft] = useState<AnyNodeData>(initial);
+  const [draftNodeId, setDraftNodeId] = useState<string>(node.id);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [pendingRemove, setPendingRemove] = useState<{ handleId: string; resolve: (ok: boolean) => void; count: number } | null>(null);
 
-  // Reset quando muda o nó selecionado
-  useEffect(() => {
-    setDraft(mergeNodeData(kind, node.data));
+  if (draftNodeId !== node.id) {
+    setDraftNodeId(node.id);
+    setDraft(initial);
     setErrors({});
-  }, [node.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }
+
 
   const dirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(initial), [draft, initial]);
   const isDisconnected = disconnectedIds.has(node.id);
