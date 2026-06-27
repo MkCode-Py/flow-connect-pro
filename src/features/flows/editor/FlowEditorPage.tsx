@@ -48,6 +48,8 @@ function FlowEditorInner() {
   const [name, setName] = useState("");
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [miniMapVisible, setMiniMapVisible] = useState(true);
+  const [simulatorOpen, setSimulatorOpen] = useState(false);
+  const [executedEdgeIds, setExecutedEdgeIds] = useState<Set<string>>(new Set());
   const loadedRef = useRef(false);
 
   useEffect(() => {
