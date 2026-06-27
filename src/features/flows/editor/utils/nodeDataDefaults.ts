@@ -47,14 +47,16 @@ const menuDefault = (): MenuData => ({
   label: "Menu",
   question: "Escolha uma opção:",
   helperText: "",
+  inputMode: "buttons",
   options: [
-    { id: genId("opt"), shortcut: "1", title: "Opção 1", description: "", acceptedValues: ["1"] },
-    { id: genId("opt"), shortcut: "2", title: "Opção 2", description: "", acceptedValues: ["2"] },
+    { id: genId("opt"), shortcut: "1", title: "Opção 1", description: "" },
+    { id: genId("opt"), shortcut: "2", title: "Opção 2", description: "" },
   ],
   invalidReplyMessage: "Não entendi. Escolha uma das opções acima.",
   timeoutMinutes: 60,
   timeoutMessage: "Como não recebi resposta, vou encerrar por enquanto.",
 });
+
 
 const questionDefault = (): QuestionData => ({
   label: "Pergunta",
