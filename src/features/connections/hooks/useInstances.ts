@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { whatsapp, mockConnectedPhone } from "@/integrations/whatsapp";
+import { whatsapp } from "@/integrations/whatsapp";
 import type { WAStatus } from "@/integrations/whatsapp/adapter";
 import type { WAInstance, WAInstanceLog } from "../types";
 
