@@ -63,7 +63,10 @@ export default function WebhooksPage() {
 
   const upsert = useMutation({
     mutationFn: async (v: { id?: string; name: string; url: string; method: string; event: string; headers: Record<string, string>; body: Record<string, unknown>; is_active: boolean }) => {
-      const payload = { name: v.name.trim(), url: v.url.trim(), method: v.method, event: v.event, headers: v.headers, body: v.body, is_active: v.is_active };
+      const payload = {
+        name: v.name.trim(), url: v.url.trim(), method: v.method, event: v.event,
+        headers: v.headers as any, body: v.body as any, is_active: v.is_active,
+      };
       if (v.id) {
         const { error } = await supabase.from("webhooks").update(payload).eq("id", v.id);
         if (error) throw error;
