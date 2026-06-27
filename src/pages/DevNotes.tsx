@@ -1,7 +1,8 @@
 import { PageContainer, PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Code2, Database, Workflow, Zap, Shield, Server, Plug, BookOpen, Inbox, Smartphone } from "lucide-react";
+import { Code2, Database, Workflow, Zap, Shield, Server, Plug, BookOpen, Inbox, Smartphone, CheckSquare, Rocket } from "lucide-react";
+import { ValidationChecklist } from "./dev-notes/ValidationChecklist";
 
 export default function DevNotes() {
   return (
@@ -25,6 +26,8 @@ export default function DevNotes() {
               ["#conexoes", "Etapa 8 — Conexões", Smartphone],
               ["#integracao", "Plugar Baileys", Code2],
               ["#seguranca", "Segurança", Shield],
+              ["#vps", "Checklist VPS", Rocket],
+              ["#validacao", "Checklist validação", CheckSquare],
               ["#setup", "Setup local", Zap],
             ] as const
           ).map(([href, label, Icon]) => (
@@ -340,6 +343,32 @@ POST   /api/whatsapp/instances/:id/send`}</Pre>
               <li>Registrar tudo em <code>wa_instance_logs</code>.</li>
               <li><strong>Não</strong> implementar disparo em massa, broadcast ou campanhas — envios só por conversa individual ou automação reativa.</li>
             </ul>
+          </Section>
+
+          <Section id="vps" title="Checklist de migração para VPS">
+            <p>Roteiro objetivo para o Claude Code colocar o backend Node.js em produção.</p>
+            <ol className="list-decimal pl-5 space-y-1.5 text-sm">
+              <li>Baixar o projeto e revisar <code>.env</code> (apenas chaves públicas no frontend).</li>
+              <li>Configurar acesso ao banco gerenciado (URL + service role somente no backend).</li>
+              <li>Rodar migrations já existentes; criar novas apenas se necessário.</li>
+              <li>Criar backend Node.js separado (Fastify + Socket.io recomendados).</li>
+              <li>Instalar <code>@whiskeysockets/baileys</code>, <code>qrcode</code>, <code>pino</code>.</li>
+              <li>Configurar PM2 ou Docker para manter os processos vivos.</li>
+              <li>Configurar Nginx como reverse proxy (frontend estático + API + WS).</li>
+              <li>Emitir certificado HTTPS (Let's Encrypt).</li>
+              <li>Apontar domínio próprio (DNS A/AAAA).</li>
+              <li>Centralizar logs (pino + arquivo rotacionado ou stack ELK simples).</li>
+              <li>Configurar backup automático do auth state das sessões Baileys.</li>
+              <li><strong>Testar com número secundário</strong> primeiro — risco real de banimento.</li>
+              <li>Validar recebimento, envio e gatilho de fluxo ponta a ponta.</li>
+              <li>Só depois ligar o número principal de produção.</li>
+              <li>Monitorar <code>wa_instance_logs</code> e <code>automation_logs</code> nos primeiros dias.</li>
+            </ol>
+          </Section>
+
+          <Section id="validacao" title="Checklist de validação manual">
+            <p>Use esta lista para validar o MVP antes de exportar para o Claude Code. Progresso fica salvo neste navegador.</p>
+            <ValidationChecklist />
           </Section>
 
         </div>
