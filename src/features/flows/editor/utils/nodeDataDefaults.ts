@@ -136,10 +136,7 @@ function migrateMenuOption(raw: unknown, idx: number): MenuOption {
       ? String(o.label)
       : `Opção ${idx + 1}`;
   const description = typeof o.description === "string" ? o.description : "";
-  const acceptedValues = Array.isArray(o.acceptedValues)
-    ? (o.acceptedValues as unknown[]).map(String).filter(Boolean)
-    : [shortcut];
-  return { id, shortcut, title, description, acceptedValues };
+  return { id, shortcut, title, description };
 }
 
 function migrateRandomOutput(raw: unknown, idx: number): RandomOutput {
@@ -168,8 +165,11 @@ export function mergeNodeData<K extends NodeKind>(
       const options = rawOpts.length
         ? rawOpts.map((o, i) => migrateMenuOption(o, i))
         : (base as MenuData).options;
-      return { ...(base as MenuData), ...d, options } as NodeDataByKind[K];
+      const inputMode: MenuData["inputMode"] =
+        d.inputMode === "numeric" || d.inputMode === "buttons" ? d.inputMode : "buttons";
+      return { ...(base as MenuData), ...d, inputMode, options } as NodeDataByKind[K];
     }
+
     case "random": {
       const d = data as Partial<RandomData> & { outputs?: unknown; branches?: unknown };
       const rawOuts = Array.isArray(d.outputs)
