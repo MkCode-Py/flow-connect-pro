@@ -95,6 +95,7 @@ export type BotOutput =
       nodeId: string;
       question: string;
       helper?: string;
+      inputMode: "buttons" | "numeric";
       options: { id: string; shortcut: string; title: string }[];
       timestamp: number;
     }

@@ -325,6 +325,7 @@ export class FlowEngine {
     this.bufferOutputs.push({
       kind: "menu", id: outId(), nodeId: node.id,
       question, helper: data.helperText,
+      inputMode: data.inputMode ?? "buttons",
       options: (data.options ?? []).map((o) => ({ id: o.id, shortcut: o.shortcut, title: o.title })),
       timestamp: this.options.now(),
     });

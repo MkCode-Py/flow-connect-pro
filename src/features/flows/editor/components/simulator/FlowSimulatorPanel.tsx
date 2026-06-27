@@ -153,6 +153,21 @@ export function FlowSimulatorPanel({ open, onClose, nodes, edges, hasUnsavedChan
     enqueuePlayback(engineRef.current.sendUserMessage(text));
   }, [input, enqueuePlayback]);
 
+  const handleSelectMenuOption = useCallback((optionTitle: string) => {
+    if (!engineRef.current) return;
+    setMessages((prev) => [...prev, { kind: "user", id: mkId(), text: optionTitle, timestamp: Date.now() }]);
+    enqueuePlayback(engineRef.current.sendUserMessage(optionTitle));
+  }, [enqueuePlayback]);
+
+  // Último menu emitido pelo bot (para destacar como ativo).
+  const activeMenuOutputId = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.kind === "bot" && m.output.kind === "menu") return m.output.id;
+    }
+    return null;
+  }, [messages]);
+
   const handleTimeout = useCallback(() => {
     if (!engineRef.current) return;
     enqueuePlayback(engineRef.current.simulateTimeout());
@@ -222,6 +237,8 @@ export function FlowSimulatorPanel({ open, onClose, nodes, edges, hasUnsavedChan
             input={input} onInputChange={setInput} onSend={handleSend}
             onRestart={handleRestart} onClear={handleClear}
             onSimulateTimeout={handleTimeout} canSimulateTimeout={canTimeout}
+            onSelectMenuOption={handleSelectMenuOption}
+            activeMenuOutputId={activeMenuOutputId}
           />
         </TabsContent>
         <TabsContent value="logs" className="flex-1 mt-2 min-h-0">
