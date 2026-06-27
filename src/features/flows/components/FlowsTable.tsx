@@ -66,14 +66,14 @@ export function FlowsTable(props: FlowTableProps) {
                   onCheckedChange={(c) => props.onToggleSelectAll(!!c)}
                 />
               </TableHead>
-              <SortableHead label="Nome" sortKey="name" {...props.sort} onSort={props.onSort} />
+              <SortableHead label="Nome" sortKey="name" currentKey={props.sort.key} dir={props.sort.dir} onSort={props.onSort} />
               <TableHead>Pasta</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead className="text-center">Status</TableHead>
               <TableHead className="text-center">Conexões</TableHead>
               <TableHead className="text-center">Execuções</TableHead>
               <TableHead className="text-center">CTR</TableHead>
-              <SortableHead label="Última alteração" sortKey="updated" {...props.sort} onSort={props.onSort} />
+              <SortableHead label="Última alteração" sortKey="updated" currentKey={props.sort.key} dir={props.sort.dir} onSort={props.onSort} />
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
