@@ -23,6 +23,10 @@ type Props = {
   onClear: () => void;
   onSimulateTimeout: () => void;
   canSimulateTimeout: boolean;
+  /** Disparado quando o usuário clica num botão de menu interativo. */
+  onSelectMenuOption: (optionTitle: string) => void;
+  /** ID do output do menu que está aguardando resposta (para habilitar os botões). */
+  activeMenuOutputId: string | null;
 };
 
 const STATUS_HINT: Record<EngineStatus, { label: string; tone: string }> = {
@@ -38,6 +42,7 @@ const STATUS_HINT: Record<EngineStatus, { label: string; tone: string }> = {
 
 export function SimulatorChat({
   messages, status, typing, input, onInputChange, onSend, onRestart, onClear, onSimulateTimeout, canSimulateTimeout,
+  onSelectMenuOption, activeMenuOutputId,
 }: Props) {
   const scrollerRef = useRef<HTMLDivElement>(null);
 
@@ -89,7 +94,12 @@ export function SimulatorChat({
           {messages.map((m) =>
             m.kind === "user"
               ? <SimulatorMessageBubble key={m.id} output={{ kind: "system", id: m.id, body: "", tone: "info", timestamp: m.timestamp }} fromUser text={m.text} />
-              : <SimulatorMessageBubble key={m.output.id} output={m.output} />,
+              : <SimulatorMessageBubble
+                  key={m.output.id}
+                  output={m.output}
+                  onSelectOption={onSelectMenuOption}
+                  menuActive={m.output.kind === "menu" && m.output.id === activeMenuOutputId && status === "waiting_menu_reply"}
+                />,
           )}
           {typing && <TypingIndicator />}
         </div>
