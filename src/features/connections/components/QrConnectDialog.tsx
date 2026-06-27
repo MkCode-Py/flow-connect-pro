@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCcw, CheckCircle2, Smartphone, ShieldAlert } from "lucide-react";
-import { whatsapp } from "@/integrations/whatsapp/mockAdapter";
+import { whatsapp } from "@/integrations/whatsapp";
 import { useRegenerateQr, useSimulateConnection, useUpdateLastQr } from "../hooks/useInstances";
 import type { WAInstance } from "../types";
 import { InstanceStatusBadge } from "./InstanceStatusBadge";
