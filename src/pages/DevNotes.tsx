@@ -1,7 +1,7 @@
 import { PageContainer, PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Code2, Database, Workflow, Zap, Shield, Server, Plug, BookOpen } from "lucide-react";
+import { Code2, Database, Workflow, Zap, Shield, Server, Plug, BookOpen, Inbox } from "lucide-react";
 
 export default function DevNotes() {
   return (
@@ -20,6 +20,7 @@ export default function DevNotes() {
               ["#schema", "Banco de dados", Database],
               ["#engine", "Engine de automação", Workflow],
               ["#automacao", "Automação reativa", Zap],
+              ["#inbox", "Inbox e atendimento", Inbox],
               ["#adapter", "WhatsAppAdapter", Plug],
               ["#integracao", "Plugar Baileys", Code2],
               ["#seguranca", "Segurança", Shield],
@@ -207,6 +208,38 @@ bun run build
 `}</Pre>
             <p className="text-sm">Variáveis públicas (.env): <code>VITE_SUPABASE_URL</code>, <code>VITE_SUPABASE_PUBLISHABLE_KEY</code>, <code>VITE_SUPABASE_PROJECT_ID</code>.</p>
           </Section>
+          <Section id="inbox" title="Etapa 7 — Inbox e atendimento humano">
+            <p>A Inbox (<code>/inbox</code>) é a área operacional para o atendente humano. Tudo é mockado nesta etapa — nenhuma mensagem é enviada/recebida pelo WhatsApp.</p>
+            <p><strong>Tabelas envolvidas:</strong></p>
+            <ul className="list-disc pl-5 space-y-1 text-sm">
+              <li><code>contacts</code> — nome, telefone, e-mail, empresa, notas, <code>custom_fields jsonb</code>, <code>automation_paused</code>.</li>
+              <li><code>conversations</code> — <code>status</code> (open / pending / resolved / human_required), <code>automation_paused</code>, <code>last_message_at</code>, <code>last_message_preview</code>, <code>unread_count</code>.</li>
+              <li><code>messages</code> — <code>direction</code> (in / out / system) e <code>sent_by</code> (contact / bot / human / system).</li>
+              <li><code>tags</code> + <code>contact_tags</code> — etiquetas com cor aplicadas no contato.</li>
+              <li><code>quick_replies</code> — <code>shortcut</code> único por usuário, <code>title</code>, <code>category</code>, <code>content</code>, <code>is_active</code>.</li>
+              <li><code>automation_logs</code> — eventos exibidos na coluna lateral (mockados nesta etapa).</li>
+            </ul>
+            <p><strong>Resolução de variáveis nas respostas rápidas</strong> (<code>src/lib/contactVariables.ts</code>): <code>{"{{nome}}"}</code>, <code>{"{{primeiro_nome}}"}</code>, <code>{"{{telefone}}"}</code>, <code>{"{{email}}"}</code>, <code>{"{{empresa}}"}</code>, <code>{"{{campo.<chave>}}"}</code>.</p>
+            <p><strong>Pausar automação:</strong> seta <code>conversations.automation_paused = true</code> e registra <code>automation_logs.event = 'automation_paused'</code>. O backend real deve checar essa flag <strong>antes</strong> de processar palavras-chave/fluxos.</p>
+            <p><strong>Fluxo futuro com Baileys conectado:</strong></p>
+            <Pre>{`1. Baileys recebe mensagem do contato.
+2. Backend faz upsert do contato (por telefone) → contacts.
+3. Backend encontra/cria conversa aberta (conversations).
+4. Backend insere mensagem (direction='in', sent_by='contact').
+5. SE conversation.automation_paused OU contact.automation_paused:
+     pular automação — apenas notificar o atendente.
+   SENÃO:
+     matchKeywords(body) → seleciona regra ativa por prioridade.
+     FlowEngine.run(flow, contact) processa o grafo.
+     respostas geradas são salvas como (direction='out', sent_by='bot').
+     adapter.sendText(phone, body) envia via WhatsAppAdapter.
+6. Atendente humano pode responder pela inbox → cria mensagem
+   (direction='out', sent_by='human') e dispara adapter.sendText.
+7. Realtime (Supabase channel) atualiza a UI da Inbox.`}</Pre>
+            <p><strong>Hooks principais:</strong> <code>useConversations</code>, <code>useConversationMessages</code>, <code>useSendMockMessage</code>, <code>useCreateMockIncomingMessage</code>, <code>useUpdateConversationStatus</code>, <code>useSetAutomationPaused</code>, <code>useApplyContactTag</code>.</p>
+            <p><strong>Onde plugar o real:</strong> substituir os hooks <code>useSendMockMessage</code> / <code>useCreateMockIncomingMessage</code> por chamadas ao backend que falam com o <code>WhatsAppAdapter</code>; manter a mesma assinatura.</p>
+          </Section>
+
         </div>
       </div>
     </PageContainer>
