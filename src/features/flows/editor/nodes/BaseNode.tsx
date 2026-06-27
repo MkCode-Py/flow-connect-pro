@@ -148,6 +148,12 @@ function BaseNodeImpl({ id, type, data, selected }: NodeProps) {
   // posicionamento vertical dos handles de saída quando há múltiplos
   const outSpacing = outputs.length > 1 ? 1 / (outputs.length + 1) : 0.5;
 
+  // subscribe para refletir activeNodeId/visitedNodeIds em tempo real
+  const [, force] = useState(0);
+  useEffect(() => subscribeBaseNodeContext(() => force((n) => n + 1)), []);
+  const isActive = ctx.activeNodeId === id;
+  const isVisited = ctx.visitedNodeIds.has(id);
+
   return (
     <div
       data-selected={selected ? "true" : "false"}
@@ -155,6 +161,8 @@ function BaseNodeImpl({ id, type, data, selected }: NodeProps) {
         "group relative w-[240px] rounded-xl bg-card border border-border shadow-card transition-all",
         "hover:border-border-strong",
         selected && "ring-2 ring-offset-2 ring-offset-background ring-primary/70 shadow-glow",
+        isActive && "ring-2 ring-offset-2 ring-offset-background ring-success shadow-glow animate-pulse",
+        !isActive && isVisited && "ring-1 ring-success/40",
       )}
       style={{ borderLeft: `4px solid hsl(var(--node-${meta.tone}))` }}
     >
