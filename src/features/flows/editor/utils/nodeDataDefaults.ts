@@ -47,14 +47,16 @@ const menuDefault = (): MenuData => ({
   label: "Menu",
   question: "Escolha uma opção:",
   helperText: "",
+  inputMode: "buttons",
   options: [
-    { id: genId("opt"), shortcut: "1", title: "Opção 1", description: "", acceptedValues: ["1"] },
-    { id: genId("opt"), shortcut: "2", title: "Opção 2", description: "", acceptedValues: ["2"] },
+    { id: genId("opt"), shortcut: "1", title: "Opção 1", description: "" },
+    { id: genId("opt"), shortcut: "2", title: "Opção 2", description: "" },
   ],
   invalidReplyMessage: "Não entendi. Escolha uma das opções acima.",
   timeoutMinutes: 60,
   timeoutMessage: "Como não recebi resposta, vou encerrar por enquanto.",
 });
+
 
 const questionDefault = (): QuestionData => ({
   label: "Pergunta",
@@ -134,10 +136,7 @@ function migrateMenuOption(raw: unknown, idx: number): MenuOption {
       ? String(o.label)
       : `Opção ${idx + 1}`;
   const description = typeof o.description === "string" ? o.description : "";
-  const acceptedValues = Array.isArray(o.acceptedValues)
-    ? (o.acceptedValues as unknown[]).map(String).filter(Boolean)
-    : [shortcut];
-  return { id, shortcut, title, description, acceptedValues };
+  return { id, shortcut, title, description };
 }
 
 function migrateRandomOutput(raw: unknown, idx: number): RandomOutput {
@@ -166,8 +165,11 @@ export function mergeNodeData<K extends NodeKind>(
       const options = rawOpts.length
         ? rawOpts.map((o, i) => migrateMenuOption(o, i))
         : (base as MenuData).options;
-      return { ...(base as MenuData), ...d, options } as NodeDataByKind[K];
+      const inputMode: MenuData["inputMode"] =
+        d.inputMode === "numeric" || d.inputMode === "buttons" ? d.inputMode : "buttons";
+      return { ...(base as MenuData), ...d, inputMode, options } as NodeDataByKind[K];
     }
+
     case "random": {
       const d = data as Partial<RandomData> & { outputs?: unknown; branches?: unknown };
       const rawOuts = Array.isArray(d.outputs)

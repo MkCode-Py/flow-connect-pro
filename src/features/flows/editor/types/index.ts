@@ -103,12 +103,15 @@ export type ConditionData = {
 };
 
 /* ============== Menu ============== */
+export type MenuInputMode = "buttons" | "numeric";
+
 export type MenuOption = {
   id: string;
   shortcut: string;
   title: string;
   description?: string;
-  acceptedValues: string[];
+  /** Mantido para compatibilidade com fluxos antigos; não é mais editável na UI. */
+  acceptedValues?: string[];
 };
 
 export type MenuData = {
@@ -117,11 +120,13 @@ export type MenuData = {
   notes?: string;
   question: string;
   helperText?: string;
+  inputMode: MenuInputMode;
   options: MenuOption[];
   invalidReplyMessage: string;
   timeoutMinutes: number;
   timeoutMessage: string;
 };
+
 
 /* ============== Question ============== */
 export type QuestionSaveTo = "nome" | "telefone" | "email" | "empresa" | "custom_field";
