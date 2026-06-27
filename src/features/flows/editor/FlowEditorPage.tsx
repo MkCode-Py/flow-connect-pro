@@ -34,7 +34,7 @@ function FlowEditorInner() {
   const { id } = useParams<{ id: string }>();
   const nav = useNavigate();
   const qc = useQueryClient();
-  const { project, fitView, setViewport, getViewport } = useReactFlow();
+  const { project, fitView, setViewport } = useReactFlow();
 
   const query = useFlowGraph(id);
 
@@ -226,6 +226,3 @@ function FlowEditorInner() {
     </div>
   );
 }
-
-// suprime warning unused getViewport
-void getViewport;
