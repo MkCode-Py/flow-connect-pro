@@ -19,12 +19,19 @@ export function setBaseNodeContext(next: Partial<BaseNodeContext>) {
 function NodePreview({ kind, data }: { kind: NodeKind; data: AnyNodeData }) {
   switch (kind) {
     case "content": {
-      const d = data as Extract<AnyNodeData, { message?: unknown }>;
-      const msg = (d as { message?: string }).message?.trim();
-      return <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{msg || "Sem mensagem"}</p>;
+      const d = data as { contentType?: string; message?: string; mediaUrl?: string };
+      if (d.contentType && d.contentType !== "text") {
+        return (
+          <p className="text-xs text-muted-foreground line-clamp-1">
+            <span className="uppercase tracking-wide text-[10px] text-foreground/60 mr-1">{d.contentType}</span>
+            {d.mediaUrl || "Mídia não definida"}
+          </p>
+        );
+      }
+      return <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{d.message?.trim() || "Sem mensagem"}</p>;
     }
     case "menu": {
-      const d = data as { question?: string; options?: { id: string; label: string }[] };
+      const d = data as { question?: string; options?: { id: string; title?: string }[] };
       return (
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground line-clamp-1">{d.question || "—"}</p>
@@ -54,26 +61,30 @@ function NodePreview({ kind, data }: { kind: NodeKind; data: AnyNodeData }) {
       );
     }
     case "action": {
-      const d = data as { actionType?: string; value?: string };
+      const d = data as { actionType?: string; tagIds?: string[] };
       const map: Record<string, string> = {
         add_tag: "Adicionar etiqueta",
         remove_tag: "Remover etiqueta",
-        transfer: "Transferir para humano",
-        pause_bot: "Pausar bot",
+        pause_bot: "Pausar automação",
+        resume_bot: "Reiniciar automação",
+        transfer_human: "Transferir para humano",
+        mark_resolved: "Marcar como resolvido",
+        update_field: "Atualizar campo",
       };
       return (
         <p className="text-xs text-muted-foreground">
           {map[d.actionType ?? ""] ?? d.actionType ?? "—"}
-          {d.value ? ` · ${d.value}` : ""}
+          {d.tagIds?.length ? ` · ${d.tagIds.length} etiqueta(s)` : ""}
         </p>
       );
     }
     case "webhook": {
-      const d = data as { method?: string; url?: string };
+      const d = data as { method?: string; url?: string; mockMode?: boolean };
       return (
         <p className="text-xs text-muted-foreground line-clamp-1">
           <span className="font-mono text-foreground/80">{d.method ?? "POST"}</span>{" "}
           {d.url || "URL não definida"}
+          {d.mockMode ? " · mock" : ""}
         </p>
       );
     }
@@ -86,18 +97,18 @@ function NodePreview({ kind, data }: { kind: NodeKind; data: AnyNodeData }) {
       );
     }
     case "random": {
-      const d = data as { mode?: string; branches?: { id: string; label: string }[] };
+      const d = data as { mode?: string; outputs?: unknown[] };
       return (
         <p className="text-xs text-muted-foreground">
-          {d.branches?.length ?? 0} saídas · {d.mode === "sequential" ? "sequencial" : "aleatório"}
+          {d.outputs?.length ?? 0} saídas · {d.mode === "sequential" ? "sequencial" : "aleatório"}
         </p>
       );
     }
     case "end": {
-      const d = data as { markResolved?: boolean };
+      const d = data as { markResolved?: boolean; finalMessage?: string };
       return (
-        <p className="text-xs text-muted-foreground">
-          {d.markResolved ? "Marca como resolvido" : "Finaliza a automação"}
+        <p className="text-xs text-muted-foreground line-clamp-1">
+          {d.finalMessage?.trim() || (d.markResolved ? "Marca como resolvido" : "Finaliza a automação")}
         </p>
       );
     }
@@ -108,6 +119,7 @@ function NodePreview({ kind, data }: { kind: NodeKind; data: AnyNodeData }) {
     }
   }
 }
+
 
 function BaseNodeImpl({ id, type, data, selected }: NodeProps) {
   const kind = type as NodeKind;

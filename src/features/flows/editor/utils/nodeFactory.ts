@@ -1,5 +1,6 @@
 import type { Node, XYPosition } from "reactflow";
 import { NODE_META } from "./nodeMeta";
+import { defaultDataFor } from "./nodeDataDefaults";
 import type { NodeDataByKind, NodeKind } from "../types";
 
 export function newNodeId(kind: NodeKind): string {
@@ -15,7 +16,7 @@ export function createStartNode(): Node<NodeDataByKind["start"]> {
     id: "start",
     type: "start",
     position: { x: 120, y: 160 },
-    data: { ...NODE_META.start.defaultData },
+    data: defaultDataFor("start"),
     deletable: false,
   };
 }
@@ -29,7 +30,7 @@ export function createNode<K extends NodeKind>(
     id: newNodeId(kind),
     type: kind,
     position,
-    data: structuredClone(meta.defaultData),
+    data: defaultDataFor(kind),
     deletable: meta.deletable,
   };
 }
