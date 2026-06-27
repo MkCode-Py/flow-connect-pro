@@ -23,6 +23,7 @@ import { applyNodeData, syncDynamicHandles } from "./utils/updateNodeData";
 import { removeEdgesForHandle } from "./utils/edgeCleanup";
 import { mergeNodeData } from "./utils/nodeDataDefaults";
 import { setBaseNodeContext } from "./nodes";
+import { FlowSimulatorPanel } from "./components/simulator/FlowSimulatorPanel";
 import type { AnyNodeData, FlowGraph, NodeKind } from "./types";
 
 export default function FlowEditorPage() {
