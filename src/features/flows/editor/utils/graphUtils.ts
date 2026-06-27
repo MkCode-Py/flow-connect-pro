@@ -2,6 +2,8 @@ import type { Connection, Edge, Node } from "reactflow";
 import { EMPTY_VIEWPORT, type FlowGraph, type NodeKind } from "../types";
 import { NODE_META, getInputs, getOutputs } from "./nodeMeta";
 import { createStartNode } from "./nodeFactory";
+import { migrateNodeData } from "./nodeDataDefaults";
+
 
 /** Garante que exista exatamente 1 bloco start; nunca remove dados existentes. */
 export function ensureStartNode(nodes: Node[]): Node[] {
@@ -43,10 +45,11 @@ export function sanitizeGraph(raw: unknown): FlowGraph {
           x: Number(n.position?.x ?? 0),
           y: Number(n.position?.y ?? 0),
         },
-        data: n.data && typeof n.data === "object" ? n.data : {},
+        data: migrateNodeData(n.type as NodeKind, n.data),
         deletable: NODE_META[n.type as NodeKind].deletable,
       })),
   );
+
 
   const nodeIds = new Set(safeNodes.map((n) => n.id));
   const safeEdges = edges
