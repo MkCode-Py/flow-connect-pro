@@ -1,5 +1,5 @@
 /** Componente visual único para todos os tipos de bloco. */
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import { Handle, Position, type NodeProps } from "reactflow";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
