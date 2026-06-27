@@ -8,12 +8,26 @@ import type { AnyNodeData, NodeKind } from "../types";
 
 type BaseNodeContext = {
   disconnectedIds: Set<string>;
+  /** Nó atualmente em execução pelo simulador. */
+  activeNodeId: string | null;
+  /** Nós já visitados na execução corrente. */
+  visitedNodeIds: Set<string>;
 };
 
 // passamos contexto via window-attached store simples para evitar prop drilling no ReactFlow
-const ctx: BaseNodeContext = { disconnectedIds: new Set() };
+const ctx: BaseNodeContext = {
+  disconnectedIds: new Set(),
+  activeNodeId: null,
+  visitedNodeIds: new Set(),
+};
+const listeners = new Set<() => void>();
 export function setBaseNodeContext(next: Partial<BaseNodeContext>) {
   Object.assign(ctx, next);
+  listeners.forEach((l) => l());
+}
+export function subscribeBaseNodeContext(l: () => void) {
+  listeners.add(l);
+  return () => listeners.delete(l);
 }
 
 function NodePreview({ kind, data }: { kind: NodeKind; data: AnyNodeData }) {
