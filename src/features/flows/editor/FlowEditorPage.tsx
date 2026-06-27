@@ -216,18 +216,6 @@ function FlowEditorInner() {
     nav("/flows");
   }, [query.data, qc, nav]);
 
-  if (query.isLoading) {
-    return (
-      <div className="h-[calc(100vh-3rem)] flex items-center justify-center">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (query.isError || !query.data) {
-    return <EmptyFlowError message={query.error instanceof Error ? query.error.message : undefined} />;
-  }
-
   const handleHighlightChange = useCallback((h: { current: string | null; visited: Set<string>; edges: Set<string> }) => {
     setBaseNodeContext({ activeNodeId: h.current, visitedNodeIds: h.visited });
     setExecutedEdgeIds(h.edges);
@@ -241,6 +229,18 @@ function FlowEditorInner() {
         : e,
     );
   }, [edges, executedEdgeIds]);
+
+  if (query.isLoading) {
+    return (
+      <div className="h-[calc(100vh-3rem)] flex items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (query.isError || !query.data) {
+    return <EmptyFlowError message={query.error instanceof Error ? query.error.message : undefined} />;
+  }
 
   return (
     <div className="h-[calc(100vh-3rem)] flex flex-col">
