@@ -280,9 +280,12 @@ export type Database = {
           flow_id: string | null
           id: string
           is_active: boolean
+          last_match_at: string | null
           match_rule: Database["public"]["Enums"]["keyword_match_rule"]
           name: string
+          notes: string | null
           owner_id: string
+          priority: number
           terms: string[]
           updated_at: string
         }
@@ -292,9 +295,12 @@ export type Database = {
           flow_id?: string | null
           id?: string
           is_active?: boolean
+          last_match_at?: string | null
           match_rule?: Database["public"]["Enums"]["keyword_match_rule"]
           name: string
+          notes?: string | null
           owner_id: string
+          priority?: number
           terms?: string[]
           updated_at?: string
         }
@@ -304,9 +310,12 @@ export type Database = {
           flow_id?: string | null
           id?: string
           is_active?: boolean
+          last_match_at?: string | null
           match_rule?: Database["public"]["Enums"]["keyword_match_rule"]
           name?: string
+          notes?: string | null
           owner_id?: string
+          priority?: number
           terms?: string[]
           updated_at?: string
         }
@@ -421,7 +430,9 @@ export type Database = {
           interval_minutes: number
           is_active: boolean
           name: string
+          notes: string | null
           owner_id: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
@@ -431,7 +442,9 @@ export type Database = {
           interval_minutes?: number
           is_active?: boolean
           name: string
+          notes?: string | null
           owner_id: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
@@ -441,7 +454,9 @@ export type Database = {
           interval_minutes?: number
           is_active?: boolean
           name?: string
+          notes?: string | null
           owner_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -479,36 +494,48 @@ export type Database = {
       }
       webhooks: {
         Row: {
+          body: Json
           created_at: string
           event: string
           headers: Json
           id: string
           is_active: boolean
+          last_test_result: Json | null
+          last_tested_at: string | null
           method: string
           name: string
           owner_id: string
+          updated_at: string
           url: string
         }
         Insert: {
+          body?: Json
           created_at?: string
           event?: string
           headers?: Json
           id?: string
           is_active?: boolean
+          last_test_result?: Json | null
+          last_tested_at?: string | null
           method?: string
           name: string
           owner_id: string
+          updated_at?: string
           url: string
         }
         Update: {
+          body?: Json
           created_at?: string
           event?: string
           headers?: Json
           id?: string
           is_active?: boolean
+          last_test_result?: Json | null
+          last_tested_at?: string | null
           method?: string
           name?: string
           owner_id?: string
+          updated_at?: string
           url?: string
         }
         Relationships: []
@@ -561,7 +588,12 @@ export type Database = {
         | "default_reply"
         | "media_default"
         | "post_service"
-      keyword_match_rule: "contains" | "starts_with" | "exact"
+      keyword_match_rule:
+        | "contains"
+        | "starts_with"
+        | "exact"
+        | "contains_any"
+        | "contains_all"
       message_direction: "in" | "out"
       message_sent_by: "bot" | "human" | "contact"
       wa_instance_status:
@@ -705,7 +737,13 @@ export const Constants = {
         "media_default",
         "post_service",
       ],
-      keyword_match_rule: ["contains", "starts_with", "exact"],
+      keyword_match_rule: [
+        "contains",
+        "starts_with",
+        "exact",
+        "contains_any",
+        "contains_all",
+      ],
       message_direction: ["in", "out"],
       message_sent_by: ["bot", "human", "contact"],
       wa_instance_status: [
