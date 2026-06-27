@@ -98,33 +98,39 @@ export type Database = {
       contacts: {
         Row: {
           automation_paused: boolean
+          company: string | null
           created_at: string
           custom_fields: Json
           email: string | null
           id: string
           name: string
+          notes: string | null
           owner_id: string
           phone: string | null
           updated_at: string
         }
         Insert: {
           automation_paused?: boolean
+          company?: string | null
           created_at?: string
           custom_fields?: Json
           email?: string | null
           id?: string
           name: string
+          notes?: string | null
           owner_id: string
           phone?: string | null
           updated_at?: string
         }
         Update: {
           automation_paused?: boolean
+          company?: string | null
           created_at?: string
           custom_fields?: Json
           email?: string | null
           id?: string
           name?: string
+          notes?: string | null
           owner_id?: string
           phone?: string | null
           updated_at?: string
@@ -138,8 +144,10 @@ export type Database = {
           created_at: string
           id: string
           last_message_at: string | null
+          last_message_preview: string | null
           owner_id: string
           status: Database["public"]["Enums"]["conversation_status"]
+          unread_count: number
           updated_at: string
         }
         Insert: {
@@ -148,8 +156,10 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string | null
+          last_message_preview?: string | null
           owner_id: string
           status?: Database["public"]["Enums"]["conversation_status"]
+          unread_count?: number
           updated_at?: string
         }
         Update: {
@@ -158,8 +168,10 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string | null
+          last_message_preview?: string | null
           owner_id?: string
           status?: Database["public"]["Enums"]["conversation_status"]
+          unread_count?: number
           updated_at?: string
         }
         Relationships: [
@@ -400,24 +412,33 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_active: boolean
           owner_id: string
           shortcut: string
+          title: string | null
+          updated_at: string
         }
         Insert: {
           category?: string | null
           content: string
           created_at?: string
           id?: string
+          is_active?: boolean
           owner_id: string
           shortcut: string
+          title?: string | null
+          updated_at?: string
         }
         Update: {
           category?: string | null
           content?: string
           created_at?: string
           id?: string
+          is_active?: boolean
           owner_id?: string
           shortcut?: string
+          title?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -475,6 +496,7 @@ export type Database = {
           id: string
           name: string
           owner_id: string
+          updated_at: string
         }
         Insert: {
           color?: string
@@ -482,6 +504,7 @@ export type Database = {
           id?: string
           name: string
           owner_id: string
+          updated_at?: string
         }
         Update: {
           color?: string
@@ -489,6 +512,7 @@ export type Database = {
           id?: string
           name?: string
           owner_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -581,7 +605,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      conversation_status: "open" | "pending" | "resolved"
+      conversation_status: "open" | "pending" | "resolved" | "human_required"
       flow_kind:
         | "custom"
         | "welcome"
@@ -594,8 +618,8 @@ export type Database = {
         | "exact"
         | "contains_any"
         | "contains_all"
-      message_direction: "in" | "out"
-      message_sent_by: "bot" | "human" | "contact"
+      message_direction: "in" | "out" | "system"
+      message_sent_by: "bot" | "human" | "contact" | "system"
       wa_instance_status:
         | "disconnected"
         | "qr"
@@ -729,7 +753,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      conversation_status: ["open", "pending", "resolved"],
+      conversation_status: ["open", "pending", "resolved", "human_required"],
       flow_kind: [
         "custom",
         "welcome",
@@ -744,8 +768,8 @@ export const Constants = {
         "contains_any",
         "contains_all",
       ],
-      message_direction: ["in", "out"],
-      message_sent_by: ["bot", "human", "contact"],
+      message_direction: ["in", "out", "system"],
+      message_sent_by: ["bot", "human", "contact", "system"],
       wa_instance_status: [
         "disconnected",
         "qr",
