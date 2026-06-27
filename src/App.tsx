@@ -19,7 +19,7 @@ import InboxPage from "@/features/inbox/pages/InboxPage";
 import ContactsPage from "@/features/contacts/pages/ContactsPage";
 import TagsPage from "@/features/tags/pages/TagsPage";
 import QuickRepliesPage from "@/features/quick-replies/pages/QuickRepliesPage";
-import Connections from "@/pages/Connections";
+import ConnectionsPage from "@/features/connections/pages/ConnectionsPage";
 import Settings from "@/pages/Settings";
 import DevNotes from "@/pages/DevNotes";
 import NotFound from "./pages/NotFound";
