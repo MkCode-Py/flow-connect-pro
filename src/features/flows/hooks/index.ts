@@ -60,7 +60,7 @@ export function useFlows() {
         .eq("owner_id", user!.id)
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return data as FlowRow[];
+      return data as unknown as FlowRow[];
     },
   });
 }
@@ -126,7 +126,7 @@ export function useCreateFlow() {
         .select()
         .single();
       if (error) throw error;
-      return data as FlowRow;
+      return data as unknown as FlowRow;
     },
     onSuccess: inv(qc),
   });
@@ -187,7 +187,7 @@ export function useDuplicateFlow() {
         .select()
         .single();
       if (error) throw error;
-      return data as FlowRow;
+      return data as unknown as FlowRow;
     },
     onSuccess: inv(qc),
   });
