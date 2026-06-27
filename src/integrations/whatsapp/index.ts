@@ -1,4 +1,5 @@
 import { MockWhatsAppAdapter } from "./mockAdapter";
+export { mockConnectedPhone } from "./mockAdapter";
 import type { WhatsAppAdapter } from "./adapter";
 
 /**
