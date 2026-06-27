@@ -42,22 +42,22 @@ type Props = {
 };
 
 export function InspectorPanel(props: Props) {
+  if (!props.node) return null;
+
   return (
     <>
-      {/* Desktop: painel fixo lateral */}
-      <aside className="hidden lg:flex flex-col w-[380px] shrink-0 border-l border-border bg-card surface-1">
+      {/* Desktop: painel fixo lateral, visível apenas quando há nó selecionado */}
+      <aside className="hidden lg:flex flex-col w-[380px] shrink-0 border-l border-border bg-card surface-1 animate-in slide-in-from-right duration-200">
         <InspectorContent {...props} />
       </aside>
 
-      {/* Mobile: sheet sobreposto quando há nó selecionado */}
-      {props.node && (
-        <div className="lg:hidden fixed inset-0 z-30 flex">
-          <div className="flex-1 bg-background/60 backdrop-blur-sm" onClick={props.onClose} />
-          <aside className="w-full max-w-sm bg-card border-l border-border flex flex-col animate-in slide-in-from-right duration-200">
-            <InspectorContent {...props} />
-          </aside>
-        </div>
-      )}
+      {/* Mobile: sheet sobreposto */}
+      <div className="lg:hidden fixed inset-0 z-30 flex">
+        <div className="flex-1 bg-background/60 backdrop-blur-sm" onClick={props.onClose} />
+        <aside className="w-full max-w-sm bg-card border-l border-border flex flex-col animate-in slide-in-from-right duration-200">
+          <InspectorContent {...props} />
+        </aside>
+      </div>
     </>
   );
 }
@@ -65,16 +65,8 @@ export function InspectorPanel(props: Props) {
 function InspectorContent({
   node, edges, disconnectedIds, onClose, onCommit, onDuplicate, onDelete, onRemoveEdgesForHandle,
 }: Props) {
-  if (!node) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-12 text-muted-foreground">
-        <div className="h-12 w-12 rounded-full bg-surface-2 flex items-center justify-center mb-3">
-          <span className="text-xl">✦</span>
-        </div>
-        <p className="text-sm">Selecione um bloco para editar suas configurações.</p>
-      </div>
-    );
-  }
+  if (!node) return null;
+
 
   const kind = node.type as NodeKind;
   const meta = NODE_META[kind];
