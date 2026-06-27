@@ -62,6 +62,63 @@ export type Database = {
           },
         ]
       }
+      company_settings: {
+        Row: {
+          automation_enabled: boolean
+          company_name: string | null
+          created_at: string
+          default_message_delay_ms: number
+          description: string | null
+          max_auto_messages_per_conversation: number
+          off_hours_message: string | null
+          on_human_handoff: string
+          on_paused_behavior: string
+          owner_id: string
+          phone: string | null
+          public_name: string | null
+          service_active: boolean
+          service_hours: Json
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          automation_enabled?: boolean
+          company_name?: string | null
+          created_at?: string
+          default_message_delay_ms?: number
+          description?: string | null
+          max_auto_messages_per_conversation?: number
+          off_hours_message?: string | null
+          on_human_handoff?: string
+          on_paused_behavior?: string
+          owner_id: string
+          phone?: string | null
+          public_name?: string | null
+          service_active?: boolean
+          service_hours?: Json
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          automation_enabled?: boolean
+          company_name?: string | null
+          created_at?: string
+          default_message_delay_ms?: number
+          description?: string | null
+          max_auto_messages_per_conversation?: number
+          off_hours_message?: string | null
+          on_human_handoff?: string
+          on_paused_behavior?: string
+          owner_id?: string
+          phone?: string | null
+          public_name?: string | null
+          service_active?: boolean
+          service_hours?: Json
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       contact_tags: {
         Row: {
           contact_id: string
@@ -192,6 +249,7 @@ export type Database = {
           key: string
           label: string
           owner_id: string
+          type: Database["public"]["Enums"]["custom_field_type"]
         }
         Insert: {
           created_at?: string
@@ -200,6 +258,7 @@ export type Database = {
           key: string
           label: string
           owner_id: string
+          type?: Database["public"]["Enums"]["custom_field_type"]
         }
         Update: {
           created_at?: string
@@ -208,6 +267,7 @@ export type Database = {
           key?: string
           label?: string
           owner_id?: string
+          type?: Database["public"]["Enums"]["custom_field_type"]
         }
         Relationships: []
       }
@@ -662,6 +722,13 @@ export type Database = {
     }
     Enums: {
       conversation_status: "open" | "pending" | "resolved" | "human_required"
+      custom_field_type:
+        | "text"
+        | "number"
+        | "email"
+        | "phone"
+        | "date"
+        | "boolean"
       flow_kind:
         | "custom"
         | "welcome"
@@ -813,6 +880,14 @@ export const Constants = {
   public: {
     Enums: {
       conversation_status: ["open", "pending", "resolved", "human_required"],
+      custom_field_type: [
+        "text",
+        "number",
+        "email",
+        "phone",
+        "date",
+        "boolean",
+      ],
       flow_kind: [
         "custom",
         "welcome",
