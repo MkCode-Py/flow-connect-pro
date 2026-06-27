@@ -19,6 +19,9 @@ import { ContactSidePanel } from "../components/ContactSidePanel";
 import { MockIncomingMessageDialog } from "../components/MockIncomingMessageDialog";
 import { AutomationStatusBadge } from "../components/AutomationStatusBadge";
 import { STATUS_LABEL, type InboxConversation } from "../types";
+import { useConnectionSummary } from "@/features/connections/hooks/useConnectionSummary";
+import { Link } from "react-router-dom";
+import { Smartphone, AlertCircle } from "lucide-react";
 
 export default function InboxPage() {
   const { user } = useAuth();
@@ -86,8 +89,12 @@ export default function InboxPage() {
   const updateContact = useUpdateContactInline();
   const createConv = useCreateMockConversation();
 
+  const conn = useConnectionSummary();
+
   return (
-    <div className="flex h-[calc(100vh-3rem)] overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-3rem)] overflow-hidden">
+      <ConnectionBanner connected={conn.connected > 0} total={conn.total} />
+      <div className="flex flex-1 min-h-0 overflow-hidden">
       {/* COLUNA ESQUERDA */}
       <aside
         className={cn(
