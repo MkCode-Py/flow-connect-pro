@@ -516,6 +516,44 @@ export type Database = {
         }
         Relationships: []
       }
+      wa_instance_logs: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          instance_id: string
+          message: string | null
+          metadata: Json
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          instance_id: string
+          message?: string | null
+          metadata?: Json
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          instance_id?: string
+          message?: string | null
+          metadata?: Json
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wa_instance_logs_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhooks: {
         Row: {
           body: Json
@@ -566,32 +604,50 @@ export type Database = {
       }
       whatsapp_instances: {
         Row: {
+          connected_phone: string | null
           created_at: string
+          description: string | null
+          error_message: string | null
           id: string
+          last_activity_at: string | null
           last_qr: string | null
+          last_qr_at: string | null
           last_seen_at: string | null
           name: string
           owner_id: string
+          session_saved: boolean
           status: Database["public"]["Enums"]["wa_instance_status"]
           updated_at: string
         }
         Insert: {
+          connected_phone?: string | null
           created_at?: string
+          description?: string | null
+          error_message?: string | null
           id?: string
+          last_activity_at?: string | null
           last_qr?: string | null
+          last_qr_at?: string | null
           last_seen_at?: string | null
           name: string
           owner_id: string
+          session_saved?: boolean
           status?: Database["public"]["Enums"]["wa_instance_status"]
           updated_at?: string
         }
         Update: {
+          connected_phone?: string | null
           created_at?: string
+          description?: string | null
+          error_message?: string | null
           id?: string
+          last_activity_at?: string | null
           last_qr?: string | null
+          last_qr_at?: string | null
           last_seen_at?: string | null
           name?: string
           owner_id?: string
+          session_saved?: boolean
           status?: Database["public"]["Enums"]["wa_instance_status"]
           updated_at?: string
         }
@@ -626,6 +682,9 @@ export type Database = {
         | "connecting"
         | "connected"
         | "error"
+        | "qr_pending"
+        | "reconnecting"
+        | "session_expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -776,6 +835,9 @@ export const Constants = {
         "connecting",
         "connected",
         "error",
+        "qr_pending",
+        "reconnecting",
+        "session_expired",
       ],
     },
   },
