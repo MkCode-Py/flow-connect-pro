@@ -19,6 +19,7 @@ export default function DevNotes() {
               ["#arquitetura", "Arquitetura", Server],
               ["#schema", "Banco de dados", Database],
               ["#engine", "Engine de automação", Workflow],
+              ["#automacao", "Automação reativa", Zap],
               ["#adapter", "WhatsAppAdapter", Plug],
               ["#integracao", "Plugar Baileys", Code2],
               ["#seguranca", "Segurança", Shield],
@@ -110,6 +111,52 @@ async function onWhatsAppMessage(msg, contact, activeFlow) {
   await db.conversations.update({ status: tick.status, contact: tick.contact });
 }`}</Pre>
           </Section>
+
+          <Section id="automacao" title="Automação reativa (Etapa 6)">
+            <p>
+              A área <code>/automation</code> tem três telas: <strong>Palavras-chave</strong>, <strong>Sequências</strong> e <strong>Webhooks</strong>.
+              Toda automação é <strong>reativa</strong> — só dispara quando o cliente envia uma mensagem.
+              <strong> Não existe broadcast, disparo em massa nem campanha.</strong>
+            </p>
+            <ul className="list-disc pl-5 text-sm space-y-1">
+              <li><strong>Palavras-chave:</strong> regras com termos, prioridade e tipo de correspondência (<code>contains</code>, <code>contains_any</code>, <code>contains_all</code>, <code>starts_with</code>, <code>exact</code>). Cada regra aponta para um fluxo.</li>
+              <li><strong>Sequências:</strong> apenas CRUD/mock. Scheduler real virá do backend Node.js.</li>
+              <li><strong>Webhooks:</strong> apenas CRUD/mock. "Testar mock" não dispara HTTP real — registra <code>{`{ success: true, mock: true }`}</code>.</li>
+            </ul>
+            <p className="text-sm">
+              A função de matching está em <code>src/features/automation/keywords/utils/keywordMatcher.ts</code> e
+              normaliza acentos, case e pontuação. É a mesma função que o backend deve usar:
+            </p>
+            <Pre>{`import { matchKeywords } from "@/features/automation/keywords/utils/keywordMatcher";
+
+const result = matchKeywords(message.body, activeKeywordRules);
+// {
+//   matched: boolean,
+//   matchedRules: [{ rule, matchedTerms, reason }],
+//   bestMatch: { rule, matchedTerms, reason } | null,
+//   linkedFlowId: string | null,
+// }`}</Pre>
+            <p className="text-sm">Pseudo-fluxo do backend real quando uma mensagem chega pelo WhatsApp:</p>
+            <Pre>{`// 1. Baileys/whatsapp-web.js recebe a mensagem
+// 2. Backend salva em \`messages\` e atualiza \`conversations.last_message_at\`
+// 3. Se conversations.automation_paused = true => para aqui
+// 4. Carrega keywords ativas do owner:
+const rules = await db.keywords.listActive(ownerId);
+// 5. matchKeywords decide qual fluxo iniciar
+const { bestMatch, linkedFlowId } = matchKeywords(msg.body, rules);
+if (!linkedFlowId) return;
+// 6. Carrega graph e roda a engine da Etapa 5
+const flow = await db.flows.getGraph(linkedFlowId);
+const engine = new FlowEngine(flow.graph, contact);
+const tick = await engine.start();
+// 7. Envia outputs pelo WhatsAppAdapter e persiste logs
+for (const out of tick.outputs) await whatsapp.send(contact.phone, out);
+for (const log of tick.logs) await db.automation_logs.insert(log);
+// 8. Atualiza keywords.executions e keywords.last_match_at do bestMatch
+await db.keywords.bumpExecution(bestMatch.rule.id);`}</Pre>
+          </Section>
+
+
 
 
           <Section id="adapter" title="WhatsAppAdapter">
