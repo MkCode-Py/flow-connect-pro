@@ -25,9 +25,9 @@ export function setBaseNodeContext(next: Partial<BaseNodeContext>) {
   Object.assign(ctx, next);
   listeners.forEach((l) => l());
 }
-export function subscribeBaseNodeContext(l: () => void) {
+export function subscribeBaseNodeContext(l: () => void): () => void {
   listeners.add(l);
-  return () => listeners.delete(l);
+  return () => { listeners.delete(l); };
 }
 
 function NodePreview({ kind, data }: { kind: NodeKind; data: AnyNodeData }) {
