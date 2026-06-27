@@ -23,6 +23,7 @@ import { applyNodeData, syncDynamicHandles } from "./utils/updateNodeData";
 import { removeEdgesForHandle } from "./utils/edgeCleanup";
 import { mergeNodeData } from "./utils/nodeDataDefaults";
 import { setBaseNodeContext } from "./nodes";
+import { FlowSimulatorPanel } from "./components/simulator/FlowSimulatorPanel";
 import type { AnyNodeData, FlowGraph, NodeKind } from "./types";
 
 export default function FlowEditorPage() {
@@ -47,6 +48,8 @@ function FlowEditorInner() {
   const [name, setName] = useState("");
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [miniMapVisible, setMiniMapVisible] = useState(true);
+  const [simulatorOpen, setSimulatorOpen] = useState(false);
+  const [executedEdgeIds, setExecutedEdgeIds] = useState<Set<string>>(new Set());
   const loadedRef = useRef(false);
 
   useEffect(() => {
@@ -225,6 +228,20 @@ function FlowEditorInner() {
     return <EmptyFlowError message={query.error instanceof Error ? query.error.message : undefined} />;
   }
 
+  const handleHighlightChange = useCallback((h: { current: string | null; visited: Set<string>; edges: Set<string> }) => {
+    setBaseNodeContext({ activeNodeId: h.current, visitedNodeIds: h.visited });
+    setExecutedEdgeIds(h.edges);
+  }, []);
+
+  const decoratedEdges = useMemo<Edge[]>(() => {
+    if (!executedEdgeIds.size) return edges;
+    return edges.map((e) =>
+      executedEdgeIds.has(e.id)
+        ? { ...e, animated: true, style: { ...(e.style ?? {}), strokeWidth: 2.5, stroke: "hsl(var(--success))" } }
+        : e,
+    );
+  }, [edges, executedEdgeIds]);
+
   return (
     <div className="h-[calc(100vh-3rem)] flex flex-col">
       <EditorTopBar
@@ -233,11 +250,7 @@ function FlowEditorInner() {
         status={autosave.status}
         lastSavedAt={autosave.lastSavedAt}
         onSave={() => autosave.save()}
-        onTest={() =>
-          toast.info("Simulador disponível na próxima etapa", {
-            description: "O motor de execução e simulador serão entregues na Etapa 5.",
-          })
-        }
+        onTest={() => setSimulatorOpen((o) => !o)}
         onDuplicate={handleDuplicateFlow}
         onDelete={handleDeleteFlow}
         onFitView={() => fitView({ padding: 0.3, duration: 240 })}
@@ -248,7 +261,7 @@ function FlowEditorInner() {
       <div className="flex-1 flex min-h-0 relative">
         <FlowCanvas
           nodes={nodes}
-          edges={edges}
+          edges={decoratedEdges}
           miniMapVisible={miniMapVisible}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
@@ -258,17 +271,28 @@ function FlowEditorInner() {
           onViewportChange={handleViewportChange}
           defaultViewport={query.data.graph.viewport}
         />
-        <InspectorPanel
-          node={selectedNode}
+        {!simulatorOpen && (
+          <InspectorPanel
+            node={selectedNode}
+            edges={edges}
+            disconnectedIds={disconnected}
+            onClose={() => setSelectedNode(null)}
+            onCommit={handleCommitNodeData}
+            onDuplicate={handleDuplicateNode}
+            onDelete={handleDeleteNode}
+            onRemoveEdgesForHandle={handleRemoveEdgesForHandle}
+          />
+        )}
+        <FlowSimulatorPanel
+          open={simulatorOpen}
+          onClose={() => setSimulatorOpen(false)}
+          nodes={nodes}
           edges={edges}
-          disconnectedIds={disconnected}
-          onClose={() => setSelectedNode(null)}
-          onCommit={handleCommitNodeData}
-          onDuplicate={handleDuplicateNode}
-          onDelete={handleDeleteNode}
-          onRemoveEdgesForHandle={handleRemoveEdgesForHandle}
+          hasUnsavedChanges={autosave.status === "dirty" || autosave.status === "saving"}
+          onHighlightChange={handleHighlightChange}
         />
       </div>
     </div>
   );
 }
+

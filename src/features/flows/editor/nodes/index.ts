@@ -7,4 +7,4 @@ export const nodeTypes: NodeTypes = Object.fromEntries(
   NODE_KINDS.map((k) => [k, BaseNode]),
 );
 
-export { BaseNode, setBaseNodeContext } from "./BaseNode";
+export { BaseNode, setBaseNodeContext, subscribeBaseNodeContext } from "./BaseNode";
