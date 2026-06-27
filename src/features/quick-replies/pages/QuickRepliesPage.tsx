@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, MoreVertical, Pencil, Trash2, MessagesSquare, Search, Copy, Power, PowerOff } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -162,8 +162,7 @@ function QRDialog({
   const [content, setContent] = useState(e?.content ?? "");
   const [isActive, setIsActive] = useState(e?.is_active ?? true);
 
-  // reset on open
-  useState(() => {
+  useEffect(() => {
     if (state.open) {
       setShortcut(e?.shortcut ?? "/");
       setTitle(e?.title ?? "");
@@ -171,7 +170,8 @@ function QRDialog({
       setContent(e?.content ?? "");
       setIsActive(e?.is_active ?? true);
     }
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.open, e?.id]);
 
   const preview = resolveContactVariables(content, SAMPLE_CONTACT);
 

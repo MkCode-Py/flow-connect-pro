@@ -15,10 +15,10 @@ import FlowEditor from "@/pages/flows/FlowEditor";
 import Keywords from "@/pages/automation/Keywords";
 import Sequences from "@/pages/automation/Sequences";
 import Webhooks from "@/pages/automation/Webhooks";
-import Inbox from "@/pages/inbox/Inbox";
-import Contacts from "@/pages/Contacts";
-import Tags from "@/pages/Tags";
-import QuickReplies from "@/pages/QuickReplies";
+import InboxPage from "@/features/inbox/pages/InboxPage";
+import ContactsPage from "@/features/contacts/pages/ContactsPage";
+import TagsPage from "@/features/tags/pages/TagsPage";
+import QuickRepliesPage from "@/features/quick-replies/pages/QuickRepliesPage";
 import Connections from "@/pages/Connections";
 import Settings from "@/pages/Settings";
 import DevNotes from "@/pages/DevNotes";
@@ -47,11 +47,12 @@ const App = () => (
               <Route path="/automation/keywords" element={<Keywords />} />
               <Route path="/automation/sequences" element={<Sequences />} />
               <Route path="/automation/webhooks" element={<Webhooks />} />
-              <Route path="/inbox" element={<Inbox />} />
-              <Route path="/inbox/:conversationId" element={<Inbox />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/tags" element={<Tags />} />
-              <Route path="/quick-replies" element={<QuickReplies />} />
+              <Route path="/inbox" element={<InboxPage />} />
+              <Route path="/inbox/:conversationId" element={<InboxPage />} />
+              <Route path="/contacts" element={<ContactsPage />} />
+              <Route path="/tags" element={<TagsPage />} />
+              <Route path="/quick-replies" element={<QuickRepliesPage />} />
+
               <Route path="/connections" element={<Connections />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/dev-notes" element={<DevNotes />} />
