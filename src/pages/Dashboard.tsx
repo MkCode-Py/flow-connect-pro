@@ -1,10 +1,13 @@
 import { PageContainer, PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { MessageSquare, Users, Workflow, Zap } from "lucide-react";
+import { MessageSquare, Users, Workflow, Zap, Smartphone, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useConnectionSummary } from "@/features/connections/hooks/useConnectionSummary";
+import { InstanceStatusBadge } from "@/features/connections/components/InstanceStatusBadge";
 
 export default function Dashboard() {
   const { user } = useAuth();
