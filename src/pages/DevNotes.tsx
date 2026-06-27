@@ -1,7 +1,7 @@
 import { PageContainer, PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Code2, Database, Workflow, Zap, Shield, Server, Plug, BookOpen, Inbox } from "lucide-react";
+import { Code2, Database, Workflow, Zap, Shield, Server, Plug, BookOpen, Inbox, Smartphone } from "lucide-react";
 
 export default function DevNotes() {
   return (
@@ -22,6 +22,7 @@ export default function DevNotes() {
               ["#automacao", "Automação reativa", Zap],
               ["#inbox", "Inbox e atendimento", Inbox],
               ["#adapter", "WhatsAppAdapter", Plug],
+              ["#conexoes", "Etapa 8 — Conexões", Smartphone],
               ["#integracao", "Plugar Baileys", Code2],
               ["#seguranca", "Segurança", Shield],
               ["#setup", "Setup local", Zap],
