@@ -19,6 +19,9 @@ import { ContactSidePanel } from "../components/ContactSidePanel";
 import { MockIncomingMessageDialog } from "../components/MockIncomingMessageDialog";
 import { AutomationStatusBadge } from "../components/AutomationStatusBadge";
 import { STATUS_LABEL, type InboxConversation } from "../types";
+import { useConnectionSummary } from "@/features/connections/hooks/useConnectionSummary";
+import { Link } from "react-router-dom";
+import { Smartphone, AlertCircle } from "lucide-react";
 
 export default function InboxPage() {
   const { user } = useAuth();
@@ -86,8 +89,12 @@ export default function InboxPage() {
   const updateContact = useUpdateContactInline();
   const createConv = useCreateMockConversation();
 
+  const conn = useConnectionSummary();
+
   return (
-    <div className="flex h-[calc(100vh-3rem)] overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-3rem)] overflow-hidden">
+      <ConnectionBanner connected={conn.connected > 0} total={conn.total} />
+      <div className="flex flex-1 min-h-0 overflow-hidden">
       {/* COLUNA ESQUERDA */}
       <aside
         className={cn(
@@ -261,6 +268,28 @@ export default function InboxPage() {
           onSubmit={(body) => sendIncoming.mutateAsync({ conversationId: active.id, body })}
         />
       )}
+      </div>
+    </div>
+  );
+}
+
+function ConnectionBanner({ connected, total }: { connected: boolean; total: number }) {
+  if (total === 0) {
+    return (
+      <div className="border-b border-warning/30 bg-warning/10 px-4 py-2 text-xs flex items-center gap-2 text-warning">
+        <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+        <span className="flex-1 min-w-0">WhatsApp não conectado — modo mock ativo. Mensagens enviadas aqui não saem para o WhatsApp real.</span>
+        <Link to="/connections" className="font-medium underline-offset-2 hover:underline shrink-0">Conectar</Link>
+      </div>
+    );
+  }
+  return (
+    <div className="border-b border-border bg-surface-2/40 px-4 py-2 text-xs flex items-center gap-2 text-muted-foreground">
+      <Smartphone className="h-3.5 w-3.5 shrink-0" />
+      <span className="flex-1 min-w-0">
+        {connected ? "Instância conectada em modo mock — nenhuma mensagem real é enviada." : "Nenhuma instância conectada no momento."}
+      </span>
+      <Link to="/connections" className="font-medium underline-offset-2 hover:underline shrink-0 text-foreground">Gerenciar</Link>
     </div>
   );
 }

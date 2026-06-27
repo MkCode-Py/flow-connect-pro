@@ -1,7 +1,7 @@
 import { PageContainer, PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Code2, Database, Workflow, Zap, Shield, Server, Plug, BookOpen, Inbox } from "lucide-react";
+import { Code2, Database, Workflow, Zap, Shield, Server, Plug, BookOpen, Inbox, Smartphone } from "lucide-react";
 
 export default function DevNotes() {
   return (
@@ -22,6 +22,7 @@ export default function DevNotes() {
               ["#automacao", "Automação reativa", Zap],
               ["#inbox", "Inbox e atendimento", Inbox],
               ["#adapter", "WhatsAppAdapter", Plug],
+              ["#conexoes", "Etapa 8 — Conexões", Smartphone],
               ["#integracao", "Plugar Baileys", Code2],
               ["#seguranca", "Segurança", Shield],
               ["#setup", "Setup local", Zap],
@@ -238,6 +239,107 @@ bun run build
 7. Realtime (Supabase channel) atualiza a UI da Inbox.`}</Pre>
             <p><strong>Hooks principais:</strong> <code>useConversations</code>, <code>useConversationMessages</code>, <code>useSendMockMessage</code>, <code>useCreateMockIncomingMessage</code>, <code>useUpdateConversationStatus</code>, <code>useSetAutomationPaused</code>, <code>useApplyContactTag</code>.</p>
             <p><strong>Onde plugar o real:</strong> substituir os hooks <code>useSendMockMessage</code> / <code>useCreateMockIncomingMessage</code> por chamadas ao backend que falam com o <code>WhatsAppAdapter</code>; manter a mesma assinatura.</p>
+          </Section>
+
+          <Section id="conexoes" title="Etapa 8 — Conexões e WhatsAppAdapter">
+            <p>A tela <code>/connections</code> gerencia instâncias WhatsApp em modo mock. Toda a UI, persistência e log de eventos já estão prontos; falta apenas plugar o backend Node.js para tornar a conexão real.</p>
+
+            <h3 className="font-display font-semibold mt-2">Tabelas</h3>
+            <Pre>{`whatsapp_instances
+  id, owner_id, name, description, status (wa_instance_status),
+  last_qr, last_qr_at, connected_phone, session_saved,
+  last_seen_at, last_activity_at, error_message,
+  created_at, updated_at
+
+wa_instance_logs
+  id, owner_id, instance_id, event, message, metadata, created_at`}</Pre>
+
+            <h3 className="font-display font-semibold mt-2">Status possíveis (enum wa_instance_status)</h3>
+            <ul className="list-disc pl-5 text-sm space-y-1">
+              <li><code>disconnected</code> — sem sessão ativa.</li>
+              <li><code>connecting</code> — handshake inicial.</li>
+              <li><code>qr_pending</code> — QR exibido, aguardando scan.</li>
+              <li><code>connected</code> — sessão ativa.</li>
+              <li><code>reconnecting</code> — tentando reabrir sessão salva.</li>
+              <li><code>error</code> — falha de conexão.</li>
+              <li><code>session_expired</code> — credenciais inválidas, exige novo QR.</li>
+            </ul>
+
+            <h3 className="font-display font-semibold mt-2">Fluxo do QR mockado</h3>
+            <Pre>{`1. Usuário clica "Conectar" em uma instância.
+2. UI chama adapter.connectInstance(id) → status = qr_pending.
+3. UI chama adapter.generateQrCode(id), recebe { qr, expiresAt: now+30s }.
+4. UI renderiza o QR (qrcode lib) e inicia timer de 30s.
+5. Ao expirar, UI chama generateQrCode novamente.
+6. Usuário clica "Simular conexão" → adapter.simulateSuccessfulConnection(id).
+   - status = connected, session_saved = true, connected_phone = +55 11 9XXXX-XXXX.
+   - Insere log connection.mock_connected.`}</Pre>
+
+            <h3 className="font-display font-semibold mt-2">Contrato WhatsAppAdapter</h3>
+            <Pre>{`interface WhatsAppAdapter {
+  connectInstance(id): Promise<void>
+  generateQrCode(id): Promise<{ qr, expiresAt }>
+  disconnectInstance(id): Promise<void>
+  reconnectInstance(id): Promise<void>
+  deleteSession(id): Promise<void>
+  sendMessage(id, to, msg): Promise<{ id }>
+  getStatus(id): Promise<WAStatus>
+  on(event, handler): Unsubscribe
+}
+
+// Eventos: qr.generated | connection.open | connection.closed |
+//          connection.error | connection.reconnecting | session.deleted |
+//          message.received | message.sent | automation.*`}</Pre>
+
+            <h3 className="font-display font-semibold mt-2">Endpoints HTTP sugeridos para o backend real</h3>
+            <Pre>{`POST   /api/whatsapp/instances
+POST   /api/whatsapp/instances/:id/connect
+POST   /api/whatsapp/instances/:id/reconnect
+POST   /api/whatsapp/instances/:id/disconnect
+DELETE /api/whatsapp/instances/:id/session
+DELETE /api/whatsapp/instances/:id
+GET    /api/whatsapp/instances/:id/status
+GET    /api/whatsapp/instances/:id/qr        (SSE / WebSocket)
+POST   /api/whatsapp/instances/:id/send`}</Pre>
+            <p>Hoje a UI chama o <code>MockWhatsAppAdapter</code> diretamente. Para plugar o real, criar uma <code>HttpWhatsAppAdapter</code> que chama esses endpoints e trocar o singleton em <code>src/integrations/whatsapp/index.ts</code> — nenhuma outra parte da UI precisa mudar.</p>
+
+            <h3 className="font-display font-semibold mt-2">Por que Baileys não roda no frontend</h3>
+            <ul className="list-disc pl-5 text-sm space-y-1">
+              <li>Baileys depende de APIs Node (sockets brutos, fs, crypto nativo).</li>
+              <li>O auth state contém credenciais sensíveis — não pode viver no navegador.</li>
+              <li>Necessário processo persistente para receber eventos do WhatsApp (browser dorme).</li>
+              <li>Vários números compartilhando um único processo precisam de orquestração.</li>
+            </ul>
+
+            <h3 className="font-display font-semibold mt-2">Fluxo futuro de conexão real</h3>
+            <Pre>{`1. Usuário clica conectar no frontend.
+2. Frontend POST /api/whatsapp/instances/:id/connect.
+3. Backend inicializa socket Baileys e useMultiFileAuthState(id).
+4. Backend recebe connection.update { qr } e envia QR via WS/SSE.
+5. Frontend renderiza QR real.
+6. Usuário escaneia QR no app WhatsApp.
+7. Backend recebe connection.update { connection: 'open' }.
+8. Backend salva auth state e atualiza whatsapp_instances.
+9. Backend assina messages.upsert.
+10. Mensagem chega → matchKeywords + FlowEngine → adapter.sendMessage.
+11. Tudo persistido em messages e wa_instance_logs.`}</Pre>
+
+            <h3 className="font-display font-semibold mt-2">Checklist para o Claude Code</h3>
+            <ul className="list-disc pl-5 text-sm space-y-1">
+              <li>Criar backend Node.js dedicado (Fastify + Socket.io recomendados).</li>
+              <li>Instalar <code>@whiskeysockets/baileys</code> e <code>qrcode</code>.</li>
+              <li>Implementar auth state persistente (filesystem privado ou Postgres).</li>
+              <li>Expor endpoints HTTP listados acima.</li>
+              <li>Criar canal realtime (WS/SSE) para QR e status por instância.</li>
+              <li>Proteger todos os endpoints validando o JWT do Supabase (owner_id).</li>
+              <li>Aplicar rate limit (ex.: 1 msg/s/instância) e fila de envio.</li>
+              <li>Implementar reconexão automática em <code>connection.update</code>.</li>
+              <li>Persistir mensagens recebidas em <code>messages</code>.</li>
+              <li>Chamar <code>matchKeywords</code> + <code>FlowEngine</code> antes de responder.</li>
+              <li>Enviar respostas via <code>sock.sendMessage()</code>.</li>
+              <li>Registrar tudo em <code>wa_instance_logs</code>.</li>
+              <li><strong>Não</strong> implementar disparo em massa, broadcast ou campanhas — envios só por conversa individual ou automação reativa.</li>
+            </ul>
           </Section>
 
         </div>
