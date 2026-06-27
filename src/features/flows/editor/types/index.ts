@@ -1,4 +1,4 @@
-/** Tipos do editor visual de fluxos. */
+/** Tipos do editor visual de fluxos. Fonte única de verdade do shape de cada bloco. */
 import type { Node, Edge, Viewport } from "reactflow";
 
 export type NodeKind =
@@ -9,56 +9,187 @@ export type FlowStatus = "idle" | "dirty" | "saving" | "error";
 
 export type HandleSpec = { id: string; label?: string };
 
-export type StartData = { label: string; description?: string };
+/* ============== Start ============== */
+export type StartData = {
+  label: string;
+  description?: string;
+  notes?: string;
+};
+
+/* ============== Content ============== */
+export type ContentType = "text" | "image" | "video" | "audio" | "file" | "contact";
 
 export type ContentData = {
   label: string;
+  description?: string;
+  notes?: string;
+  contentType: ContentType;
+  /** Texto da mensagem (usado quando contentType === "text"). */
   message: string;
-  typingDelay: number;
+  /** URL/placeholder para tipos de mídia (preparado, sem envio real ainda). */
+  mediaUrl?: string;
+  mediaCaption?: string;
+  contactName?: string;
+  contactPhone?: string;
   enableTyping: boolean;
+  /** Segundos exibindo "digitando..." antes de enviar. */
+  typingDelay: number;
+  /** Segundos de espera após enviar antes de seguir. */
+  nextDelay: number;
 };
+
+/* ============== Action ============== */
+export type ActionType =
+  | "add_tag"
+  | "remove_tag"
+  | "pause_bot"
+  | "resume_bot"
+  | "transfer_human"
+  | "mark_resolved"
+  | "update_field";
 
 export type ActionData = {
   label: string;
-  actionType: "add_tag" | "remove_tag" | "transfer" | "pause_bot";
-  value?: string;
+  description?: string;
+  notes?: string;
+  actionType: ActionType;
+  /** IDs de etiquetas para add_tag/remove_tag. */
+  tagIds: string[];
+  /** Chave do custom_field para update_field. */
+  customFieldKey: string;
+  /** Valor (texto, pode conter variáveis). */
+  customFieldValue: string;
 };
 
-export type ConditionRule = { field: string; op: "is" | "contains" | "is_not"; value: string };
+/* ============== Condition ============== */
+export type ConditionField =
+  | "tag"
+  | "contact_name"
+  | "contact_phone"
+  | "custom_field"
+  | "last_message"
+  | "current_time"
+  | "bot_paused"
+  | "conversation_status";
+
+export type ConditionOperator =
+  | "is"
+  | "is_not"
+  | "contains"
+  | "not_contains"
+  | "starts_with"
+  | "ends_with"
+  | "is_empty"
+  | "is_not_empty"
+  | "between";
+
+export type ConditionRule = {
+  id: string;
+  field: ConditionField;
+  /** Quando field === "custom_field", chave do campo a comparar. */
+  fieldKey?: string;
+  operator: ConditionOperator;
+  value: string;
+  /** Segundo valor para operator === "between". */
+  valueEnd?: string;
+};
+
 export type ConditionData = {
   label: string;
-  mode: "any" | "all";
+  description?: string;
+  notes?: string;
+  mode: "all" | "any";
   rules: ConditionRule[];
 };
 
-export type MenuOption = { id: string; label: string };
+/* ============== Menu ============== */
+export type MenuOption = {
+  id: string;
+  shortcut: string;
+  title: string;
+  description?: string;
+  acceptedValues: string[];
+};
+
 export type MenuData = {
   label: string;
+  description?: string;
+  notes?: string;
   question: string;
+  helperText?: string;
   options: MenuOption[];
+  invalidReplyMessage: string;
+  timeoutMinutes: number;
+  timeoutMessage: string;
 };
+
+/* ============== Question ============== */
+export type QuestionSaveTo = "nome" | "telefone" | "email" | "empresa" | "custom_field";
+export type ValidationType = "text" | "email" | "phone" | "number" | "yes_no" | "cpf_cnpj";
 
 export type QuestionData = {
   label: string;
+  description?: string;
+  notes?: string;
   question: string;
-  saveTo: string;
-  timeoutMinutes?: number;
+  saveTo: QuestionSaveTo;
+  /** Chave do custom_field quando saveTo === "custom_field". */
+  customFieldKey?: string;
+  validationType: ValidationType;
+  invalidMessage: string;
+  timeoutMinutes: number;
+  timeoutMessage: string;
 };
 
-export type FlowLinkData = { label: string; targetFlowId: string | null };
+/* ============== Flow Link ============== */
+export type FlowLinkData = {
+  label: string;
+  description?: string;
+  notes?: string;
+  targetFlowId: string | null;
+  endCurrentFlow: boolean;
+  preserveContext: boolean;
+};
 
-export type RandomBranch = { id: string; label: string };
-export type RandomData = { label: string; mode: "random" | "sequential"; branches: RandomBranch[] };
+/* ============== Random ============== */
+export type RandomOutput = { id: string; label: string };
+
+export type RandomData = {
+  label: string;
+  description?: string;
+  notes?: string;
+  mode: "random" | "sequential";
+  outputs: RandomOutput[];
+};
+
+/* ============== Webhook ============== */
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+export type WebhookHeader = { id: string; key: string; value: string };
 
 export type WebhookData = {
   label: string;
-  method: "GET" | "POST" | "PUT" | "DELETE";
+  description?: string;
+  notes?: string;
+  method: HttpMethod;
   url: string;
-  headers?: string;
-  body?: string;
+  headers: WebhookHeader[];
+  /** Corpo serializado em JSON (string editável pelo usuário). */
+  body: string;
+  saveResponseTo: string;
+  timeoutSeconds: number;
+  mockMode: boolean;
 };
 
-export type EndData = { label: string; markResolved: boolean };
+/* ============== End ============== */
+export type EndData = {
+  label: string;
+  description?: string;
+  notes?: string;
+  finalMessage: string;
+  markResolved: boolean;
+  removeTemporaryTags: boolean;
+  pauseAutomation: boolean;
+};
 
 export type NodeDataByKind = {
   start: StartData;
