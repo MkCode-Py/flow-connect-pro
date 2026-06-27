@@ -19,6 +19,7 @@ export default function DevNotes() {
               ["#arquitetura", "Arquitetura", Server],
               ["#schema", "Banco de dados", Database],
               ["#engine", "Engine de automação", Workflow],
+              ["#automacao", "Automação reativa", Zap],
               ["#adapter", "WhatsAppAdapter", Plug],
               ["#integracao", "Plugar Baileys", Code2],
               ["#seguranca", "Segurança", Shield],
