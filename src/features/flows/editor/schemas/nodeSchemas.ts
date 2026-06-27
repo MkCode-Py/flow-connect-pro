@@ -83,18 +83,20 @@ export const menuOptionSchema = z.object({
   shortcut: z.string().trim().min(1, "Atalho obrigatório").max(8),
   title: z.string().trim().min(1, "Título obrigatório").max(80),
   description: z.string().max(160).optional().or(z.literal("")),
-  acceptedValues: z.array(z.string().trim().min(1)).default([]),
+  acceptedValues: z.array(z.string().trim().min(1)).optional().default([]),
 });
 
 export const menuSchema = z.object({
   ...baseFields,
   question: z.string().trim().min(1, "Texto do menu é obrigatório").max(1000),
   helperText: z.string().max(400).optional().or(z.literal("")),
-  options: z.array(menuOptionSchema).min(1, "Adicione pelo menos uma opção"),
+  inputMode: z.enum(["buttons", "numeric"]).default("buttons"),
+  options: z.array(menuOptionSchema).min(1, "Adicione pelo menos uma opção").max(10, "Máximo de 10 opções"),
   invalidReplyMessage: z.string().max(500).default(""),
   timeoutMinutes: z.number().min(0, "Não pode ser negativo").max(10080),
   timeoutMessage: z.string().max(500).default(""),
 });
+
 
 export const questionSchema = z.object({
   ...baseFields,
