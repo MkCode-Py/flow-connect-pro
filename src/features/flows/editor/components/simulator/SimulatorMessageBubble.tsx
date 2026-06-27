@@ -9,6 +9,10 @@ type Props = {
   fromUser?: boolean;
   /** Para mensagens do usuário, conteúdo textual livre. */
   text?: string;
+  /** Quando definido, opções de menu viram botões clicáveis (modo "buttons"). */
+  onSelectOption?: (optionTitle: string) => void;
+  /** Marca o menu como ativo (aguardando resposta); buttons desabilitados quando false. */
+  menuActive?: boolean;
 };
 
 const mediaIcon = {
@@ -27,7 +31,7 @@ function fmtTime(ts: number) {
   return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
 }
 
-export function SimulatorMessageBubble({ output, fromUser, text }: Props) {
+export function SimulatorMessageBubble({ output, fromUser, text, onSelectOption, menuActive }: Props) {
   if (fromUser) {
     return (
       <div className="flex justify-end">
@@ -81,21 +85,45 @@ export function SimulatorMessageBubble({ output, fromUser, text }: Props) {
   }
 
   // menu
+  const isButtons = output.inputMode === "buttons";
   return (
     <div className="flex justify-start">
       <div className="max-w-[78%] rounded-2xl rounded-bl-sm bg-card border border-border px-3 py-2 text-sm shadow-sm space-y-2">
         <p className="whitespace-pre-wrap leading-relaxed">{output.question}</p>
         {output.helper && <p className="text-xs text-muted-foreground">{output.helper}</p>}
-        <div className="space-y-1 pt-1 border-t border-border/60">
-          {output.options.map((o) => (
-            <div key={o.id} className="text-xs text-foreground/90">
-              <span className="inline-flex items-center justify-center min-w-[20px] h-5 rounded bg-primary/10 text-primary font-medium mr-2">
-                {o.shortcut || "•"}
-              </span>
-              {o.title}
-            </div>
-          ))}
-        </div>
+
+        {isButtons ? (
+          <div className="flex flex-col gap-1 pt-1.5 border-t border-border/60">
+            {output.options.map((o) => (
+              <button
+                key={o.id}
+                type="button"
+                disabled={!menuActive || !onSelectOption}
+                onClick={() => onSelectOption?.(o.title)}
+                className={cn(
+                  "w-full text-center text-[13px] font-medium rounded-lg px-3 py-2 border transition-colors",
+                  menuActive && onSelectOption
+                    ? "border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 cursor-pointer"
+                    : "border-border bg-muted/30 text-muted-foreground cursor-not-allowed",
+                )}
+              >
+                {o.title}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-1 pt-1 border-t border-border/60">
+            {output.options.map((o) => (
+              <div key={o.id} className="text-xs text-foreground/90">
+                <span className="inline-flex items-center justify-center min-w-[20px] h-5 rounded bg-primary/10 text-primary font-medium mr-2">
+                  {o.shortcut || "•"}
+                </span>
+                {o.title}
+              </div>
+            ))}
+          </div>
+        )}
+
         <p className="text-[10px] text-muted-foreground text-right">{fmtTime(output.timestamp)}</p>
       </div>
     </div>
