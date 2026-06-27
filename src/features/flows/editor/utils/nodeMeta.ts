@@ -66,10 +66,12 @@ export const NODE_META: { [K in NodeKind]: NodeMeta<K> } = {
     description: "Apresenta opções clicáveis para o contato.",
     inputs: IN,
     outputs: (data: MenuData) =>
-      (data?.options ?? []).map((o) => ({
-        id: `opt-${o.id}`,
-        label: o.shortcut ? `${o.shortcut}. ${o.title}` : o.title,
-      })),
+      (data?.options ?? []).map((o, i) => {
+        const isNumeric = data?.inputMode === "numeric";
+        const prefix = isNumeric ? `${i + 1}. ` : o.shortcut ? `${o.shortcut}. ` : "";
+        return { id: `opt-${o.id}`, label: `${prefix}${o.title}` };
+      }),
+
     deletable: true, unique: false,
   },
   question: {
