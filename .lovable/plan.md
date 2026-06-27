@@ -1,84 +1,103 @@
+# Etapa 2 — Fluxos + Pastas
 
-# MK Flow WhatsApp — Plano de execução aprovado
+Reconstrução completa da rota `/flows` com foco em gestão, organização e CRUD. O editor React Flow fica para a Etapa 3 — aqui apenas garantimos que `/flows/:id` recebe o registro correto com graph inicial válido.
 
-Implementação em **9 etapas sequenciais**, priorizando funcionamento real sobre estética. Cada etapa só avança quando a anterior estiver validada.
+## Schema (ajustes mínimos via migração)
 
-## Prioridades (conforme sua aprovação)
+A tabela `flows` já existe com todos os campos necessários (`kind`, `folder_id`, `graph`, `is_active`, `executions`, `connections`, `ctr`, `updated_at`). A tabela `flow_folders` precisa de dois complementos:
 
-**Não simplificar (qualidade máxima):**
-- Editor visual React Flow
-- Salvamento/carregamento do `graph` JSON
-- Conexões entre blocos
-- Inspector lateral
-- Simulador de fluxo
+- adicionar `updated_at timestamptz` com trigger
+- adicionar índice em `(owner_id, name)` único para evitar pastas duplicadas
 
-**Simplificar para evitar bugs:**
-- Sequências (CRUD mínimo, sem scheduler real)
-- Webhooks (CRUD mock, sem execução real)
-- Analytics (apenas contadores básicos)
+Nenhuma mudança destrutiva. Tipos (`flow_kind`) já contemplam `welcome`, `default_reply`, `media_default`, `post_service`, `custom`.
 
-**Mockar (não implementar de verdade):**
-- Conexão WhatsApp (interface + adapter mock + QR fake)
-- Envio/recebimento de mensagens (só no simulador e inbox mockada)
+## Estrutura de pastas
 
----
+Reorganizar de `src/pages/flows/FlowsList.tsx` (atual monolito) para:
 
-## Etapas
+```text
+src/features/flows/
+  pages/
+    FlowsListPage.tsx           # rota /flows
+  components/
+    FlowsHeader.tsx             # título, subtítulo, CTAs
+    FlowsFilters.tsx            # busca, filtro pasta/tipo/status
+    DefaultFlowsSection.tsx     # 4 cards padrão
+    DefaultFlowCard.tsx
+    FoldersGrid.tsx             # grid de pastas + chips Todos/Sem pasta
+    FolderCard.tsx
+    FlowsTable.tsx              # tabela desktop
+    FlowsMobileList.tsx         # cards no mobile
+    FlowRowActions.tsx          # menu 3 pontos
+    dialogs/
+      CreateFlowDialog.tsx
+      RenameFlowDialog.tsx
+      MoveFlowDialog.tsx
+      DeleteFlowDialog.tsx
+      CreateFolderDialog.tsx
+      RenameFolderDialog.tsx
+      DeleteFolderDialog.tsx
+  hooks/
+    useFlows.ts                 # list + filtros
+    useFlowFolders.ts
+    useDefaultFlows.ts          # garante existência dos 4 padrões
+    useFlowMutations.ts         # create/update/delete/duplicate/move/toggle
+    useFolderMutations.ts
+  utils/
+    defaults.ts                 # DEFAULT_FLOW_DEFINITIONS, labels, descrições
+    templates.ts                # 3 modelos (Atendimento, Pix, Pós-atendimento) com graph JSON
+    graph.ts                    # buildInitialGraph(), buildTemplateGraph()
+    kindLabels.ts
+  types/
+    index.ts
+```
 
-### Etapa 1 — Fundações
-- Design system completo (tokens HSL em `index.css`, paleta dos nós, variantes shadcn)
-- Shell: Sidebar + TopBar + layouts
-- Auth (Email/senha + Google) com `/login`, `/signup`, `/reset-password`
-- Schema completo + RLS + GRANTs + trigger `handle_new_user` para `profiles`
-- Seed inicial (4 fluxos padrão vazios, tags exemplo, quick replies)
+`src/pages/flows/FlowsList.tsx` vira um re-export fino para não quebrar a rota atual. `FlowEditor.tsx` permanece intacto (Etapa 3 mexe nele).
 
-### Etapa 2 — Fluxos + Pastas
-- `/flows` com seção "Padrões Básicos" + pastas + tabela
-- CRUD de pastas e fluxos (criar, renomear, mover, duplicar, excluir)
-- Busca e filtros
+## Página /flows — comportamento
 
-### Etapa 3 — Editor visual (núcleo)
-- Canvas React Flow com grid, pan/zoom, fit-view, minimapa, fullscreen
-- 10 tipos de nó com handles tipados e cores próprias
-- Paleta flutuante para adicionar blocos
-- Autosave debounced + botão Salvar manual
-- Persistência `graph` jsonb (nodes + edges + viewport)
+**Header**: título "Fluxos de conversa", subtítulo, CTAs primário ("Criar Novo Fluxo") e secundário ("Criar Pasta").
 
-### Etapa 4 — Inspector lateral
-- Sheet contextual por tipo de nó com campos específicos validados (Zod)
-- Suporte a variáveis `{{primeiro_nome}}` etc com autocomplete
-- Duplicar, excluir, aviso de bloco desconectado
+**Filtros (linha sticky)**: busca por nome (debounced), select de pasta (Todos / Sem pasta / lista), select de tipo (Todos + 5 tipos), select de status (Todos/Ativo/Inativo), botão "Limpar".
 
-### Etapa 5 — Engine + Simulador
-- Engine pura TS em `src/features/flows/engine/` (reutilizável pelo backend futuro)
-- Painel chat de teste no editor: processa início, conteúdo (com delay), menu (número ou texto), condição, ação, pergunta, conexão de fluxo, encerrar
-- Log de eventos lateral, contato simulado editável, reiniciar
+**Seção "Fluxos Padrões Básicos"**: 4 cards fixos (boas-vindas, resposta padrão, mídia, pós-atendimento). Ao montar a página, `useDefaultFlows` garante que cada `kind` exista para o `owner_id` — se faltar, cria com nome padrão e graph inicial mínimo. Card mostra nome, badge do tipo, badge "Configurado" (quando o graph tem >1 nó) ou "Não configurado", data da última alteração e botão "Editar fluxo" que navega para `/flows/:id`.
 
-### Etapa 6 — Palavras-chave
-- `/automation/keywords` com CRUD completo vinculado a fluxos
-- Regras: contém / começa com / é exatamente, múltiplos termos
-- Toggle ativo, contador de execuções
-- Sequências e Webhooks: telas simples com CRUD básico (marcadas como "em breve" para execução real)
+**Seção "Todos os Fluxos"**:
+- Grid de pastas no topo com chips "Todos" e "Sem pasta" + cards de pasta (ícone, nome, contagem, menu 3 pontos: renomear, excluir, ver fluxos).
+- Excluir pasta: se tem fluxos dentro, modal pergunta "Mover para Sem pasta" ou "Cancelar"; se vazia, confirmação simples.
+- Tabela de fluxos (desktop) com colunas: checkbox, nome (linkado), pasta, tipo, status (switch), conexões, execuções, CTR%, última alteração, ações (menu 3 pontos).
+- No mobile vira lista de cards com os mesmos dados essenciais.
+- Empty state ilustrado quando não há fluxos. Skeleton durante load. Toast em erro.
+- Ordenação default por `updated_at desc`; header das colunas Nome / Última alteração clicável para ordenar.
 
-### Etapa 7 — Inbox + Contatos + Tags + Quick Replies
-- `/inbox` 3 colunas mockada (conversas seed)
-- Pausar/retomar automação por conversa, marcar resolvida
-- `/contacts`, `/tags`, `/quick-replies` com CRUD
+## Diálogos
 
-### Etapa 8 — Conexões + QR mock + Adapter
-- `WhatsAppAdapter` (interface tipada + eventos)
-- `MockWhatsAppAdapter` ativo
-- `BaileysWhatsAppAdapter` stub com TODOs
-- `/connections` + modal QR mockado com contador 30s e estados
+- **Criar Fluxo**: campos Nome (Zod, 1-80), Pasta (select com "Sem pasta"), Tipo (5 opções), origem (Fluxo vazio / A partir de modelo → seleciona 1 dos 3 templates). Cria registro, redireciona para `/flows/:id`.
+- **Renomear / Mover / Excluir / Duplicar**: modais focados com confirmação e toasts.
+- **Criar / Renomear / Excluir Pasta**: idem.
 
-### Etapa 9 — Settings + Dev Notes + PWA + revisão
-- Settings (perfil, campos personalizados, segurança)
-- `/dev-notes` navegável: arquitetura, schema, contrato adapter, eventos, passos para plugar Baileys em Node.js, checklist de segurança
-- Manifest PWA + ícones
-- Revisão final de RLS, validações, estados vazios/erro/loading
+## Regras de negócio
 
----
+- 4 fluxos padrão (`kind != custom`) **não podem ser excluídos**; menu de ações oferece apenas "Editar" e "Resetar para template vazio".
+- Duplicar fluxo padrão gera cópia com `kind = custom`, `is_active = false`, nome "Cópia de …", mesma pasta, mesmo graph.
+- Toggle ativo/inativo via switch otimista com rollback em erro.
+- RLS já garante isolamento por `owner_id`; todos os hooks injetam `owner_id = auth.uid()` nos inserts.
+- Validação com Zod em todos os formulários, mensagens em pt-BR.
 
-## Confirmação
+## Templates iniciais (`utils/templates.ts`)
 
-Vou começar pela **Etapa 1** assim que entrar em modo build. Cada etapa termina com verificação funcional antes da próxima.
+Cada template retorna `{ nodes, edges, viewport }` compatível com o FlowEngine existente:
+
+1. **Atendimento básico**: start → message(boas-vindas) → menu(3 opções: Preços / Pedido / Atendente) com 3 saídas vazias.
+2. **Pagamento/Pix**: start → message(formas de pagamento) → question("Já realizou o pagamento?") → action(set_tag "Pagamento").
+3. **Pós-atendimento**: start → message(agradecimento) → question(satisfação 1-5) → end.
+
+IDs únicos via `crypto.randomUUID()`, posições espaçadas (~240px) para abrirem prontas no editor da Etapa 3.
+
+## Design
+
+Mantém tokens dark premium já definidos em `src/index.css`: cards `bg-card` com `border-border/60`, hover sutil `border-primary/40`, badges semânticos por `kind` (reutiliza variáveis `--node-*`), switches shadcn, menus dropdown com ícones lucide. Tabela com linhas zebradas leves, header sticky, scroll horizontal controlado. Mobile-first com breakpoint `md` para alternar tabela ↔ cards.
+
+## Critério de pronto
+
+Todos os itens da lista do usuário verificáveis manualmente em `/flows`, com persistência real no banco e navegação para `/flows/:id` carregando o graph salvo. Nenhuma alteração no editor visual (Etapa 3).
