@@ -53,7 +53,7 @@ const App = () => (
               <Route path="/tags" element={<TagsPage />} />
               <Route path="/quick-replies" element={<QuickRepliesPage />} />
 
-              <Route path="/connections" element={<Connections />} />
+              <Route path="/connections" element={<ConnectionsPage />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/dev-notes" element={<DevNotes />} />
             </Route>
